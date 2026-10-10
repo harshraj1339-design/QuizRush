@@ -16,7 +16,6 @@ export default function Onboarding({ onSave }: { onSave: (student: Student) => v
         <h2>Create your student profile</h2>
         <p>For Lovely Professional University (LPU) students only.</p>
         <ProfileForm onSave={onSave} />
-        <p className="onboarding-privacy">Your 8-digit registration number is saved in the QuizRush student directory. It does not verify your identity.</p>
       </section>
     </div>
     <footer className="onboarding-footer onboarding-footer-clean"><span>QuizRush · Revise Fast. Score High.</span></footer>
