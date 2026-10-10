@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowRight, Check, GraduationCap, ShieldCheck, UserRound } from 'lucide-react'
 import type { Student } from '../types'
+import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
 export default function ProfileForm({ initial, onSave }: { initial?: Student; onSave: (student: Student) => void }) {
   const [name, setName] = useState(initial?.name || '')
@@ -24,13 +25,14 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
     setSubmitting(true)
     try {
       if (!initial) {
-        const response = await fetch('/.netlify/functions/register-student', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: cleanName, registrationId: cleanRegistration, semester: 3 }),
+        if (!isSupabaseConfigured) throw new Error('Registration is temporarily unavailable. The app administrator must configure Supabase.')
+        const { error } = await supabase.from('students').insert({
+          name: cleanName,
+          registration_id: cleanRegistration,
+          semester: 3,
         })
-        const payload = await response.json()
-        if (!response.ok) throw new Error(payload.error || 'Registration could not be saved.')
+        if (error?.code === '23505') throw new Error('This registration ID is already registered. Contact the administrator if you believe this is a mistake.')
+        if (error) throw new Error('Could not save your registration. Please try again later.')
       }
       setName(cleanName); setRegistration(cleanRegistration)
       onSave({ name: cleanName, registration: cleanRegistration, semester: 3 })
@@ -47,6 +49,6 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
     <div className="form-field"><label htmlFor="semester">Semester <span>*</span></label><div className={`input-with-icon ${errors.semester ? 'input-error' : ''}`}><GraduationCap size={19} /><select id="semester" value={semester} onChange={event => setSemester(event.target.value)} required aria-invalid={!!errors.semester} aria-describedby={errors.semester ? 'semester-error' : undefined}><option value="" disabled>Select your semester</option><option value="3">Semester 3</option></select></div>{errors.semester && <p id="semester-error" className="field-error">{errors.semester}</p>}</div>
     {errors.form && <p className="field-error" role="alert">{errors.form}</p>}<button className="button primary form-submit" type="submit" disabled={submitting}>{submitting ? 'Saving registration…' : initial ? 'Save Changes' : 'Start Preparing'}{!submitting && (saved && initial ? <Check size={18} /> : <ArrowRight size={18} />)}</button>
     {saved && initial && <p className="success-message" role="status">Your profile has been updated.</p>}
-    <p className="privacy-note"><ShieldCheck size={16} />Your name and registration number are saved to QuizRush's protected student directory. Registration ID alone does not verify identity.</p>
+    <p className="privacy-note"><ShieldCheck size={16} />Your name and registration number are saved to QuizRush's student directory. Registration ID alone does not verify identity.</p>
   </form>
 }
