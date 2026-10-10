@@ -12,6 +12,7 @@ import QuizView from './components/QuizView'
 import Results, { AnswerReview } from './components/Results'
 import History from './components/History'
 import Profile from './components/Profile'
+import AdminPanel from './components/AdminPanel'
 import { EmptyState, Modal, SubjectCard, SubjectIcon } from './components/Common'
 
 const readRoute = () => window.location.hash.slice(1) || '/dashboard'
@@ -101,6 +102,7 @@ export default function App() {
   const selectedCode = subjects.find(subject => subject.code === parts[1])?.code
   const result = visibleAttempts.find(attempt => attempt.id === parts[1])
   const notification = message && <div className="toast" role="status"><Info size={19} /><p>{message}</p><button aria-label="Dismiss notice" className="icon-button" onClick={() => setMessage('')}><X size={17} /></button></div>
+  if (route.split('/').filter(Boolean)[0] === 'admin') return <><AdminPanel />{notification}</>
   if (!student) return <><Onboarding onSave={saveProfile} />{notification}</>
   if (active) return <><QuizView session={active} onChange={setActive} onFinish={finishQuiz} onExit={exitQuiz} />{notification}</>
 
