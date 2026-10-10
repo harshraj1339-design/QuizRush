@@ -57,6 +57,5 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
     {errors.form && <p className="field-error" role="alert">{errors.form}</p>}
     <button className="button primary form-submit" type="submit" disabled={submitting}>{submitting ? 'Saving profile…' : initial ? 'Save Changes' : 'Start Preparing'}{!submitting && (saved && initial ? <Check size={18} /> : <ArrowRight size={18} />)}</button>
     {saved && initial && <p className="success-message" role="status">Your profile has been updated.</p>}
-    <p className="privacy-note"><ShieldCheck size={16} />Your profile is saved to QuizRush's student directory. A registration number alone does not verify identity.</p>
   </form>
 }
