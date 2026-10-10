@@ -936,3 +936,27 @@ button:disabled:not(.answer-option):not(.unit-card) { opacity: .45; }
   .welcome-form-card-clean h2 { font-size: 25px; }
   .onboarding-footer-clean { justify-content: center; padding-bottom: 18px; }
 }
+
+
+/* Improve readability on the onboarding screen */
+.onboarding-clean .brand { font-size: 28px; }
+.onboarding-clean .onboarding-badge { font-size: 13px; }
+.welcome-story-clean > .eyebrow,
+.welcome-form-card-clean > .eyebrow { font-size: 12px; letter-spacing: 1.1px; }
+.welcome-story-clean .welcome-description { font-size: 18px; }
+.welcome-form-card-clean h2 { font-size: 32px; }
+.welcome-form-card-clean > p { font-size: 15px; }
+.welcome-form-card-clean .form-field label { font-size: 14px; }
+.welcome-form-card-clean input,
+.welcome-form-card-clean select { font-size: 15px; min-height: 50px; }
+.welcome-form-card-clean input::placeholder { font-size: 14px; }
+.welcome-form-card-clean .field-help,
+.welcome-form-card-clean .field-error { font-size: 12px; }
+.welcome-form-card-clean .form-submit { min-height: 50px; font-size: 15px; }
+.onboarding-footer-clean { font-size: 12px; }
+@media (max-width: 760px) {
+  .welcome-story-clean .welcome-description { font-size: 15px; }
+  .welcome-form-card-clean h2 { font-size: 27px; }
+  .welcome-form-card-clean > p { font-size: 14px; }
+  .welcome-form-card-clean .form-field label { font-size: 13px; }
+}
