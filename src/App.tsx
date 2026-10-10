@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, Check, Info, Search, X, Zap } from 'lucide-react'
 import type { Attempt, CourseCode, QuizSession, Student } from './types'
 import { subjects } from './data/subjects'
 import { bankErrors, calculateResult } from './services/quiz'
-import { fetchAttempts, getActiveSession, getCachedAttempts, getStudent, mergeAttempts, persistAttempt, readStorage, writeStorage } from './services/storage'
+import { getActiveSession, getCachedAttempts, getStudent, mergeAttempts, readStorage, writeStorage } from './services/storage'
 import Onboarding from './components/Onboarding'
 import Shell from './components/Shell'
 import Dashboard from './components/Dashboard'
@@ -49,9 +49,7 @@ export default function App() {
     if (!student) return
     let cancelled = false
     setLoading(true)
-    fetchAttempts(student.registration).then(saved => {
-      if (!cancelled) setAttempts(current => mergeAttempts(saved, current))
-    }).catch(error => { if (!cancelled) setMessage(error.message) }).finally(() => { if (!cancelled) setLoading(false) })
+    setLoading(false)
     return () => { cancelled = true }
   }, [student?.registration])
 
@@ -77,24 +75,10 @@ export default function App() {
     setActive(null)
     navigate(`/results/${result.id}`)
     if (Date.now() >= session.startedAt + session.durationMinutes * 60000) setMessage('Time’s up. Your quiz has been submitted automatically with your saved answers.')
-    persistAttempt(result).then(() => setAttempts(current => current.map(attempt => attempt.id === result.id ? { ...attempt, synced: true } : attempt)))
-      .catch(error => setMessage(error.message))
   }, [navigate])
   function exitQuiz() { writeStorage('active', null); setActive(null); navigate('/subjects') }
   async function retryStorage() {
-    if (syncing || !student) return
-    setSyncing(true)
-    setMessage('')
-    try {
-      const pending = attempts.filter(attempt => attempt.registration === student.registration && !attempt.synced)
-      for (const attempt of pending) {
-        await persistAttempt(attempt)
-        setAttempts(current => current.map(item => item.id === attempt.id ? { ...item, synced: true } : item))
-      }
-      const saved = await fetchAttempts(student.registration)
-      setAttempts(current => mergeAttempts(saved, current))
-    } catch (error) { setMessage(error instanceof Error ? error.message : 'Anonymous history is unavailable. Your browser copy is safe.') }
-    finally { setSyncing(false) }
+    setMessage('Quiz history is saved in this browser for now. Cross-device history will be added after secure student authentication is implemented.')
   }
 
   const visibleAttempts = attempts.filter(attempt => attempt.registration === student?.registration)
