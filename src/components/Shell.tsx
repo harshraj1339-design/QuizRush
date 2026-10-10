@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { ArrowUpRight, BookOpen, ChevronDown, ChevronRight, GraduationCap, History, LayoutDashboard, Menu, Moon, Sparkles, Sun, UserRound, X, Zap } from 'lucide-react'
+import { ChevronDown, ChevronRight, GraduationCap, History, LayoutDashboard, Menu, Moon, Sun, UserRound, X } from 'lucide-react'
 import type { Student } from '../types'
 import { Logo } from './Brand'
 import { Modal } from './Common'
