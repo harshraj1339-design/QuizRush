@@ -61,7 +61,7 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
       {errors.semester && <p id="semester-error" className="field-error">{errors.semester}</p>}
     </div>
     {errors.form && <p className="field-error" role="alert">{errors.form}</p>}
-    <button className="button primary form-submit" type="submit" disabled={submitting}>{submitting ? 'Saving profile…' : initial ? 'Save Changes' : 'Start Preparing'}{!submitting && (saved && initial ? <Check size={18} /> : <ArrowRight size={18} />)}</button>
+    <button className="button primary form-submit" type="submit" disabled={submitting}>{submitting ? 'Saving profile…' : initial ? 'Save Changes' : 'Start Quiz'}{!submitting && (saved && initial ? <Check size={18} /> : <ArrowRight size={18} />)}</button>
     {saved && initial && <p className="success-message" role="status">Your profile has been updated.</p>}
   </form>
 }
