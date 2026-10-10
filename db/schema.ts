@@ -1,4 +1,15 @@
-import { index, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+import { index, jsonb, pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
+
+export const students = pgTable('students', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  registrationId: text('registration_id').notNull(),
+  semester: text('semester').notNull().default('3'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, table => [
+  uniqueIndex('students_registration_id_unique').on(table.registrationId),
+  index('students_created_at_idx').on(table.createdAt),
+])
 
 export const quizAttempts = pgTable('quiz_attempts', {
   id: text('id').primaryKey(),
