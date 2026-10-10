@@ -960,3 +960,38 @@ button:disabled:not(.answer-option):not(.unit-card) { opacity: .45; }
   .welcome-form-card-clean > p { font-size: 14px; }
   .welcome-form-card-clean .form-field label { font-size: 13px; }
 }
+
+
+/* Cleaner main workspace: less helper copy, clearer type hierarchy */
+.dashboard-heading .greeting-eyebrow { display: none; }
+.dashboard-heading > div:first-child > p,
+.revision-hero .hero-footnote,
+.focus-card > p,
+.focus-count,
+.focus-card-bottom,
+.metric-card > p,
+.subjects-section .section-heading p,
+.dashboard-bottom-grid,
+.dashboard-note,
+.sidebar-tagline,
+.sidebar-section-label,
+.sidebar-bottom,
+.workspace-footer { display: none !important; }
+.dashboard-heading h1 { font-size: clamp(30px, 3vw, 38px); }
+.revision-hero .hero-eyebrow { font-size: 12px; }
+.revision-hero .hero-copy h2 { font-size: clamp(32px, 3.2vw, 42px); line-height: 1.1; }
+.revision-hero .hero-copy > p { font-size: 16px; line-height: 1.6; }
+.revision-hero .button { font-size: 15px; min-height: 48px; }
+.focus-card .card-section-heading h3 { font-size: 18px; }
+.coverage-ring strong { font-size: 38px; }
+.coverage-ring > div > span { font-size: 12px; }
+.metric-card .metric-top > span:first-child { font-size: 14px; }
+.metric-card > strong { font-size: 30px; }
+.subjects-section .section-heading h2 { font-size: 23px; }
+.nav-item { font-size: 15px; min-height: 48px; }
+.topbar-breadcrumb > span { font-size: 15px; }
+@media (max-width: 760px) {
+ .revision-hero .hero-copy > p { font-size: 14px; }
+ .metric-card .metric-top > span:first-child { font-size: 12px; }
+ .metric-card > strong { font-size: 25px; }
+}
