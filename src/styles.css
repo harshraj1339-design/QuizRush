@@ -995,3 +995,17 @@ button:disabled:not(.answer-option):not(.unit-card) { opacity: .45; }
  .metric-card .metric-top > span:first-child { font-size: 12px; }
  .metric-card > strong { font-size: 25px; }
 }
+
+
+/* Improve subject-card readability */
+.subject-card > p { font-size: 16px; line-height: 1.7; }
+.subject-card-meta { font-size: 14px; }
+.subject-card-meta svg { width: 17px; height: 17px; }
+.subject-card-bottom { font-size: 14px; }
+.subject-card h3 { font-size: 19px; line-height: 1.4; }
+.subject-card .course-code { font-size: 13px; }
+@media (max-width: 760px) {
+  .subject-card > p { font-size: 14px; }
+  .subject-card-meta, .subject-card-bottom { font-size: 13px; }
+  .subject-card h3 { font-size: 17px; }
+}
