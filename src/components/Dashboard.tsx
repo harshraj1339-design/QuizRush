@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ArrowRight, BookOpen, Check, ChevronRight, Clock3, Flame, History, ListChecks, Sparkles, Target, TrendingUp, Zap } from 'lucide-react'
+import { ArrowRight, Check, Clock3, ListChecks, Target, TrendingUp, Zap } from 'lucide-react'
 import type { Attempt, Student } from '../types'
 import { getSubject, subjects } from '../data/subjects'
 import { RevisionArt } from './Brand'
