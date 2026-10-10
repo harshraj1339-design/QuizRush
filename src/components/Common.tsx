@@ -16,7 +16,7 @@ export function SubjectCard({ subject, attempts, onClick }: { subject: Subject; 
   return <button className="subject-card" onClick={onClick}>
     <div className="subject-card-top"><SubjectIcon subject={subject} /><span className="course-code">{subject.code}</span><ArrowRight className="subject-card-arrow" size={19} /></div>
     <h3>{subject.name}</h3><p>{subject.description}</p>
-    <div className="subject-card-meta"><span><BookOpen size={14} />6 demo units</span><span>{count} questions</span></div>
+    <div className="subject-card-meta"><span><BookOpen size={14} />6 units</span><span>{count} questions</span></div>
     <div className="subject-card-bottom"><span>{subjectAttempts.length ? `${subjectAttempts.length} ${subjectAttempts.length === 1 ? 'quiz' : 'quizzes'} completed` : 'Ready when you are'}</span><span className={subjectAttempts.length ? 'progress-label' : ''}>{subjectAttempts.length ? `${best}% best` : 'Start practicing'}<ArrowRight size={13} /></span></div>
     <div className={`mini-progress ${subject.accent}`}><span style={{ width: `${best}%` }} /></div>
   </button>
