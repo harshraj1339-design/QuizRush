@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { ArrowRight, Check, ShieldCheck, UserRound } from 'lucide-react'
+import { ArrowRight, Check, UserRound } from 'lucide-react'
 import type { Student } from '../types'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
