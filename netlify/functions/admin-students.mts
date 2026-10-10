@@ -12,18 +12,24 @@ export default async (request: Request) => {
   if (!isAdminSessionValid(request, secret)) return respond({ error: 'Admin authentication required.' }, 401)
 
   const search = new URL(request.url).searchParams.get('search')?.trim().slice(0, 100)
+  const escapedSearch = search?.replace(/[\\%_]/g, '\\$&')
   try {
     const database = getDatabase()
-    const query = database.select({
+    const columns = {
       id: students.id,
       name: students.name,
       registrationId: students.registrationId,
       semester: students.semester,
       createdAt: students.createdAt,
-    }).from(students)
-    const rows = await (search
-      ? query.where(or(ilike(students.name, `%${search.replace(/[%_\\\\]/g, '\\\\$&')}%`), ilike(students.registrationId, `%${search.replace(/[%_\\\\]/g, '\\\\$&')}%`)))
-      : query).orderBy(asc(students.name)).limit(500)
+    }
+    const rows = escapedSearch
+      ? await database.select(columns).from(students)
+          .where(or(
+            ilike(students.name, `%${escapedSearch}%`),
+            ilike(students.registrationId, `%${escapedSearch}%`),
+          ))
+          .orderBy(asc(students.name)).limit(500)
+      : await database.select(columns).from(students).orderBy(asc(students.name)).limit(500)
     return respond({ students: rows, limit: 500 })
   } catch {
     return respond({ error: 'Student directory is temporarily unavailable.' }, 503)
