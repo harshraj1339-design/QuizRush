@@ -57,7 +57,7 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
     </div>
     <div className="form-field">
       <label htmlFor="semester">Semester <span>*</span></label>
-      <div className={\`input-with-icon \${errors.semester ? 'input-error' : ''}\`}><GraduationCap size={19} /><select id="semester" value={semester} onChange={event => setSemester(event.target.value)} required aria-invalid={!!errors.semester} aria-describedby={errors.semester ? 'semester-error' : undefined}><option value="" disabled>Select semester</option><option value="3">Semester 3</option></select></div>
+      <div className={`input-with-icon ${errors.semester ? 'input-error' : ''}`}><GraduationCap size={19} /><select id="semester" value={semester} onChange={event => setSemester(event.target.value)} required aria-invalid={!!errors.semester} aria-describedby={errors.semester ? 'semester-error' : undefined}><option value="" disabled>Select semester</option><option value="3">Semester 3</option></select></div>
       {errors.semester && <p id="semester-error" className="field-error">{errors.semester}</p>}
     </div>
     {errors.form && <p className="field-error" role="alert">{errors.form}</p>}
