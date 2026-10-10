@@ -40,7 +40,7 @@ The seed helper's first option is the canonical correct answer. It becomes a sta
 
 ## Privacy and persistence
 
-There is no login, password, or authentication claim. Student names and registration numbers are stored **only in browser localStorage**, as requested in the user's clarification. Personal details are never included in the attempt API payload or database schema.
+Student onboarding now posts the student's full name, registration ID, and Semester 3 to the student registry API. The registry stores these fields in the Netlify Database. The admin dashboard is available at `/#/admin`; it uses a separate admin password and an eight-hour signed HttpOnly session cookie. Configure `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` in Netlify before using admin endpoints. Registration ID alone does not prove identity or provide a student login, so do not use it as authentication. Existing quiz attempts remain anonymous and are not linked to student registry records.
 
 Completed attempts are cached in the browser and saved to Netlify Database as anonymous question/answer snapshots. Each local registration profile has a randomly generated device key; only a hash of this key is stored on the server. This key is a demo history capability, not secure university authentication. Quiz scores are recalculated server-side from canonical question IDs and answer IDs. Completed snapshots preserve explanations for future reviews.
 
@@ -60,7 +60,25 @@ Clearing browser data removes the personal profile, cached attempts, and history
 - `netlify/functions/attempts.mts`: bounded, validated, anonymous history endpoint.
 - `netlify/database/migrations/`: generated Drizzle migration, applied by Netlify.
 
-After changing `db/schema.ts`, generate a migration with `npm run db:generate -- --name describe_the_change`. Never edit generated migration SQL by hand.
+After changing `db/schema.ts`, generate a migration with `npm run db:generate -- --name describe_the_change`. Never edit generated migration SQL by hand. The student registry schema adds a `students` table with a unique registration ID; generate and apply its migration before testing registration in production.
+
+### Admin environment variables
+
+Set these in Netlify Project configuration → Environment variables, then redeploy:
+
+- `ADMIN_PASSWORD`: a long, unique admin password (at least 12 characters). Do not put it in frontend code or commit it.
+- `ADMIN_SESSION_SECRET`: a random secret of at least 32 characters. Generate one locally with `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. Keep it private and stable; changing it invalidates existing admin sessions.
+
+Local Netlify development also needs these variables in a local `.env` file or shell environment. Do not commit `.env`. Use `netlify dev --port 8889` to run the frontend and functions together. The student registration API is `/.netlify/functions/register-student`; admin session is `/.netlify/functions/admin-auth`; the protected student list is `/.netlify/functions/admin-students`.
+
+**Migration workflow after pulling this branch:**
+
+1. Run `npm install`.
+2. Run `npm run db:generate -- --name add_student_registry`.
+3. Review the newly generated migration; do not hand-edit generated SQL.
+4. Commit the schema and generated migration to this branch.
+5. Configure the admin environment variables in Netlify and deploy the branch/preview.
+6. Confirm the Netlify Database integration applies migrations, then test student registration and `/#/admin` in the deployed preview. Do not merge to `main` until the build and tests pass.
 
 ## Manual acceptance checklist
 
