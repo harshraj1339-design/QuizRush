@@ -31,8 +31,9 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
           registration_id: cleanRegistration,
           semester: 3,
         })
-        if (error?.code === '23505') throw new Error('This registration number is already registered. Contact the administrator if you believe this is a mistake.')
-        if (error) throw new Error('Could not save your registration. Please try again later.')
+        // A duplicate registration ID means the student already has a directory entry.
+        // Let them continue to the app instead of treating every repeat visit as a new registration.
+        if (error && error.code !== '23505') throw new Error('Could not save your registration. Please try again later.')
       }
       setName(cleanName); setRegistration(cleanRegistration)
       onSave({ name: cleanName, registration: cleanRegistration, semester: 3 })
