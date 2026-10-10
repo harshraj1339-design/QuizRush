@@ -39,35 +39,13 @@ export function getCachedAttempts(): Attempt[] {
     .map(attempt => ({ ...calculateResult(attempt, Date.parse(attempt.completedAt)), synced: attempt.synced }))
 }
 
-export function getDeviceToken(registration: string) {
-  const value = readStorage<unknown>('devices', {})
-  const tokens: Record<string, string> = Object.assign(Object.create(null), value && typeof value === 'object' && !Array.isArray(value) ? value : {})
-  if (typeof tokens[registration] !== 'string' || !/^[a-f0-9-]{73}$/.test(tokens[registration])) {
-    tokens[registration] = `${crypto.randomUUID()}-${crypto.randomUUID()}`
-    writeStorage('devices', tokens)
-  }
-  return tokens[registration]
+export async function fetchAttempts(_registration: string): Promise<Attempt[]> {
+  // Quiz history currently remains local to this browser until authenticated student accounts are implemented.
+  return []
 }
 
-export async function fetchAttempts(registration: string): Promise<Attempt[]> {
-  const response = await fetch('/.netlify/functions/attempts', { headers: { 'x-quizrush-device': getDeviceToken(registration) } })
-  if (!response.ok) throw new Error('History is available from this browser. Anonymous server storage is currently unavailable.')
-  const payload: unknown = await response.json()
-  if (!Array.isArray(payload)) throw new Error('History could not be loaded. Your browser copy is still available.')
-  return payload.map(item => ({ ...item, registration, synced: true })).filter((item): item is Attempt => isQuizSession(item) && 'completedAt' in item && typeof item.completedAt === 'string' && Number.isFinite(Date.parse(item.completedAt)))
-    .map(item => ({ ...calculateResult(item, Date.parse(item.completedAt)), synced: true }))
-}
-
-export async function persistAttempt(attempt: Attempt): Promise<void> {
-  const response = await fetch('/.netlify/functions/attempts', {
-    method: 'POST', headers: { 'Content-Type': 'application/json', 'x-quizrush-device': getDeviceToken(attempt.registration) },
-    body: JSON.stringify({
-      id: attempt.id, courseCode: attempt.courseCode, units: attempt.units,
-      questionIds: attempt.questions.map(question => question.id), answers: attempt.answers,
-      startedAt: attempt.startedAt, durationMinutes: attempt.durationMinutes, completedAt: attempt.completedAt,
-    }),
-  })
-  if (!response.ok) throw new Error('Saved in this browser. Anonymous server storage is unavailable; retry from Quiz History.')
+export async function persistAttempt(_attempt: Attempt): Promise<void> {
+  // Intentionally local-only: registration ID is not an authentication credential.
 }
 
 export function mergeAttempts(first: Attempt[], second: Attempt[]): Attempt[] {
