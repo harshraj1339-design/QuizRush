@@ -37,18 +37,52 @@ export function shuffle<Item>(items: Item[]): Item[] {
   return shuffled
 }
 
+/**
+ * Choose 25 questions as evenly as possible across the selected units.
+ * For example, 3 units contribute 9, 8, and 8 questions; 6 units contribute
+ * 5, 4, 4, 4, 4, and 4. If a unit cannot fill its share, its remaining
+ * places are redistributed to other selected units with available questions.
+ */
+function chooseBalancedQuestions(questions: Question[], units: number[], count: number): Question[] {
+  const pools = new Map(units.map(unit => [unit, shuffle(questions.filter(question => question.unitNumber === unit))]))
+  const selected: Question[] = []
+  const used = new Set<string>()
+
+  while (selected.length < count) {
+    let addedThisRound = false
+    for (const unit of units) {
+      if (selected.length >= count) break
+      const pool = pools.get(unit) ?? []
+      const next = pool.find(question => !used.has(question.id))
+      if (!next) continue
+      selected.push(next)
+      used.add(next.id)
+      addedThisRound = true
+    }
+    if (!addedThisRound) break
+  }
+
+  return shuffle(selected)
+}
+
 export function createQuiz(courseCode: CourseCode, units: number[], durationMinutes: number, registration: string): QuizSession {
   if (bankErrors.length) throw new Error('The question bank failed validation. Please contact the administrator.')
   if (!units.length || new Set(units).size !== units.length || units.some(unit => !Number.isInteger(unit) || unit < 1 || unit > 6)) throw new Error('Choose valid, distinct units before starting your quiz.')
   if (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > 120) throw new Error('Choose a time limit between 1 and 120 minutes.')
   const eligible = getQuestions(courseCode, units)
   if (eligible.length < QUIZ_LENGTH) throw new Error(`This selection currently has ${eligible.length} questions. At least ${QUIZ_LENGTH} are needed to start a quiz.`)
+
   const usedIds = getUsedQuestionIds(registration, courseCode, units)
   const unused = eligible.filter(question => !usedIds.has(question.id))
+  // Prefer never-used questions. Only mix in used questions when fewer than 25
+  // unused questions remain across the selected units.
   const selectionPool = unused.length >= QUIZ_LENGTH ? unused : [...unused, ...shuffle(eligible.filter(question => usedIds.has(question.id)))]
+  const questions = chooseBalancedQuestions(selectionPool, units, QUIZ_LENGTH)
+  if (questions.length !== QUIZ_LENGTH) throw new Error('There are not enough distinct questions across the selected units to build a quiz.')
+
   return {
     id: crypto.randomUUID(), courseCode, units: [...units].sort((first, second) => first - second),
-    questions: shuffle(selectionPool).slice(0, QUIZ_LENGTH).map(question => ({ ...question, options: shuffle(question.options) as Question['options'] })),
+    questions: questions.map(question => ({ ...question, options: shuffle(question.options) as Question['options'] })),
     answers: {}, currentIndex: 0, startedAt: Date.now(), durationMinutes, registration,
   }
 }
