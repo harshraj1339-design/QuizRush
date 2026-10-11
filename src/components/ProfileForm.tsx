@@ -16,6 +16,7 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
     const cleanRegistration = registration.trim()
     const nextErrors: Record<string, string> = {}
     if (!cleanName) nextErrors.name = 'Please enter your full name.'
+    else if (!/^[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u.test(cleanName)) nextErrors.name = 'Use letters only for your name.'
     else if (cleanName.length > 80) nextErrors.name = 'Please use 80 characters or fewer.'
     if (!/^\d{8}$/.test(cleanRegistration)) nextErrors.registration = 'Incorrect reg ID.'
     setErrors(nextErrors)
@@ -53,7 +54,7 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
   return <form className="profile-form" onSubmit={handleSubmit} noValidate>
     <div className="form-field">
       <label htmlFor="full-name">Full name <span>*</span></label>
-      <div className={`input-with-icon ${errors.name ? 'input-error' : ''}`}><UserRound size={18} /><input id="full-name" value={name} onChange={event => { setName(event.target.value); setSaved(false) }} placeholder="Enter your full name" autoComplete="name" maxLength={80} required aria-invalid={!!errors.name} aria-describedby={errors.name ? 'name-error' : undefined} /></div>
+      <div className={`input-with-icon ${errors.name ? 'input-error' : ''}`}><UserRound size={18} /><input id="full-name" value={name} onChange={event => { setName(event.target.value.replace(/[^\p{L} '\u2019-]/gu, '')); setSaved(false) }} placeholder="Enter your full name" autoComplete="name" maxLength={80} required aria-invalid={!!errors.name} aria-describedby={errors.name ? 'name-error' : undefined} /></div>
       {errors.name && <p id="name-error" className="field-error">{errors.name}</p>}
     </div>
     <div className="form-field">
