@@ -1,6 +1,7 @@
 import type { Attempt, CourseCode, Question, QuizSession } from '../types'
 import { questionBank } from '../data/questionBank'
 import { subjects } from '../data/subjects'
+import { getUsedQuestionIds } from './questionUsage'
 
 export const QUIZ_LENGTH = 25
 
@@ -37,14 +38,17 @@ export function shuffle<Item>(items: Item[]): Item[] {
 }
 
 export function createQuiz(courseCode: CourseCode, units: number[], durationMinutes: number, registration: string): QuizSession {
-  if (bankErrors.length) throw new Error('The demo question bank failed validation. Please check the bank before practicing.')
+  if (bankErrors.length) throw new Error('The question bank failed validation. Please contact the administrator.')
   if (!units.length || new Set(units).size !== units.length || units.some(unit => !Number.isInteger(unit) || unit < 1 || unit > 6)) throw new Error('Choose valid, distinct units before starting your quiz.')
   if (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > 120) throw new Error('Choose a time limit between 1 and 120 minutes.')
   const eligible = getQuestions(courseCode, units)
-  if (eligible.length < QUIZ_LENGTH) throw new Error(`Only ${eligible.length} questions are available in these units. A quiz needs ${QUIZ_LENGTH} unique questions. Select more units or wait for the verified bank.`)
+  if (eligible.length < QUIZ_LENGTH) throw new Error(`This selection currently has ${eligible.length} questions. At least ${QUIZ_LENGTH} are needed to start a quiz.`)
+  const usedIds = getUsedQuestionIds(registration, courseCode, units)
+  const unused = eligible.filter(question => !usedIds.has(question.id))
+  const selectionPool = unused.length >= QUIZ_LENGTH ? unused : [...unused, ...shuffle(eligible.filter(question => usedIds.has(question.id)))]
   return {
     id: crypto.randomUUID(), courseCode, units: [...units].sort((first, second) => first - second),
-    questions: shuffle(eligible).slice(0, QUIZ_LENGTH).map(question => ({ ...question, options: shuffle(question.options) as Question['options'] })),
+    questions: shuffle(selectionPool).slice(0, QUIZ_LENGTH).map(question => ({ ...question, options: shuffle(question.options) as Question['options'] })),
     answers: {}, currentIndex: 0, startedAt: Date.now(), durationMinutes, registration,
   }
 }
