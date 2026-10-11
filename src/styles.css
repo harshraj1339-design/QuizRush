@@ -1063,3 +1063,46 @@ button:disabled:not(.answer-option):not(.unit-card) { opacity: .45; }
 @media (max-width: 760px) {
   .sidebar .sidebar-bottom { display: block !important; }
 }
+
+
+/* Readability pass across the student app and admin console */
+:root { --ui-text-size: 15px; }
+body { font-size: 15px; }
+.page-heading p, .subject-card > p, .empty-state p, .modal > p,
+.notice p, .field-help, .field-error, .page-footnote,
+.history-row, .config-detail, .config-footnote { font-size: 14px; }
+.eyebrow, .course-code, .heading-date > span:last-child { font-size: 12px; letter-spacing: .6px; }
+.nav-item { font-size: 16px; min-height: 50px; }
+.topbar-breadcrumb { font-size: 14px; }
+.page-heading h1, .dashboard-heading h1 { font-size: clamp(30px, 3vw, 38px); }
+.subject-card h3 { font-size: 20px; }
+.subject-card-meta, .subject-card-bottom { font-size: 15px; }
+.metric-card .metric-top > span:first-child { font-size: 15px; }
+.button, .text-button { font-size: 15px; }
+.unit-card h3 { font-size: 17px; }
+.unit-card p, .unit-question-count { font-size: 13px; }
+.step-heading h2 { font-size: 21px; }
+.step-heading p { font-size: 15px; }
+.quiz-config .config-detail, .quiz-config .config-detail strong { font-size: 14px; }
+
+/* Admin panel: comfortable reading size, including table content */
+.app-shell { font-size: 15px; }
+.app-shell h1 { font-size: clamp(28px, 3vw, 36px) !important; line-height: 1.25; }
+.app-shell p { font-size: 15px; line-height: 1.65; }
+.app-shell th { font-size: 14px; }
+.app-shell td { font-size: 15px; }
+.app-shell input, .app-shell select { font-size: 15px; min-height: 44px; }
+.app-shell .button { font-size: 15px; min-height: 44px; }
+.app-shell .privacy-note { font-size: 13px; line-height: 1.6; }
+.welcome-form-card .privacy-note { font-size: 13px; }
+@media (max-width: 760px) {
+  body { font-size: 15px; }
+  .page-heading p, .subject-card > p, .notice p, .empty-state p, .field-help,
+  .field-error, .page-footnote, .config-detail { font-size: 14px; }
+  .subject-card h3 { font-size: 18px; }
+  .unit-card h3 { font-size: 15px; }
+  .unit-card p, .unit-question-count { font-size: 12px; }
+  .step-heading h2 { font-size: 19px; }
+  .step-heading p { font-size: 14px; }
+  .app-shell td { font-size: 14px; }
+}
