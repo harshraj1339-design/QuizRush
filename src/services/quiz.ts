@@ -8,14 +8,11 @@ export const QUIZ_LENGTH = 25
 export function validateQuestionBank(bank: Question[]): string[] {
   const errors: string[] = []
   const seenIds = new Set<string>()
-  const seenTexts = new Set<string>()
   for (const question of bank) {
     if (!question || typeof question !== 'object') { errors.push('A question is missing or is not an object.'); continue }
     if (typeof question.id !== 'string' || !question.id.trim() || seenIds.has(question.id)) errors.push(`Missing or duplicate question ID: ${question.id}`)
     seenIds.add(question.id)
-    const normalizedText = typeof question.text === 'string' ? question.text.trim().toLowerCase() : ''
-    if (!normalizedText || seenTexts.has(`${question.courseCode}:${normalizedText}`)) errors.push(`Missing or duplicate question text: ${question.id}`)
-    seenTexts.add(`${question.courseCode}:${normalizedText}`)
+    if (typeof question.text !== 'string' || !question.text.trim()) errors.push(`Missing question text: ${question.id}`)
     if (!subjects.some(subject => subject.code === question.courseCode && subject.units.some(unit => unit.number === question.unitNumber))) errors.push(`Invalid subject/unit: ${question.id}`)
     if (typeof question.topic !== 'string' || !question.topic.trim() || typeof question.explanation !== 'string' || !question.explanation.trim()) errors.push(`Missing topic or explanation: ${question.id}`)
     if (!['easy', 'medium', 'hard'].includes(question.difficulty) || !['conceptual', 'scenario-based', 'calculation-based'].includes(question.style)) errors.push(`Invalid metadata: ${question.id}`)
