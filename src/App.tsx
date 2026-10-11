@@ -12,6 +12,7 @@ import SubjectSetup from './components/SubjectSetup'
 import QuizView from './components/QuizView'
 import Results, { AnswerReview } from './components/Results'
 import History from './components/History'
+import QuestionBrowser from './components/QuestionBrowser'
 import Profile from './components/Profile'
 import AdminPanel from './components/AdminPanel'
 import { EmptyState, Modal, SubjectCard, SubjectIcon } from './components/Common'
@@ -93,7 +94,9 @@ export default function App() {
   if (active) return <><QuizView session={active} onChange={setActive} onFinish={finishQuiz} onExit={exitQuiz} />{notification}</>
 
   let content
-  if (parts[0] === 'subjects') {
+  if (parts[0] === 'browse-questions') {
+    content = <QuestionBrowser />
+  } else if (parts[0] === 'subjects') {
     const filtered = subjects.filter(subject => `${subject.code} ${subject.name}`.toLowerCase().includes(subjectSearch.toLowerCase()))
     content = <><section className="page-heading"><div><span className="eyebrow">YOUR NEXT STUDY SESSION</span><h1>Find your focus.</h1><p>Pick a subject, choose your units, and make a little progress.</p></div></section><div className="subjects-toolbar"><div className="input-with-icon"><Search size={17} /><input aria-label="Search subjects" placeholder="Search a subject or course code…" value={subjectSearch} onChange={event => setSubjectSearch(event.target.value)} /></div></div><div className="subject-grid full-subject-grid">{filtered.map(subject => <SubjectCard key={subject.code} subject={subject} attempts={visibleAttempts} onClick={() => { setSetupSeed(null); navigate(`/subject/${subject.code}`) }} />)}</div>{!filtered.length && <EmptyState title="No subjects found" description="Try a course code or a different subject name." action={<button className="button secondary" onClick={() => setSubjectSearch('')}>Clear Search</button>} />}<div className="notice syllabus-notice"><Info size={18} /><p>Each subject currently has 25 practice questions. Unit assignments are being reviewed against the official university syllabus.</p></div></>
   } else if (parts[0] === 'subject' && selectedCode) {
