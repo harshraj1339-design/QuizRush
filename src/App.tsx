@@ -4,6 +4,7 @@ import type { Attempt, CourseCode, QuizSession, Student } from './types'
 import { subjects } from './data/subjects'
 import { bankErrors, calculateResult } from './services/quiz'
 import { getActiveSession, getCachedAttempts, getStudent, mergeAttempts, readStorage, writeStorage } from './services/storage'
+import { markQuestionsUsed } from './services/questionUsage'
 import Onboarding from './components/Onboarding'
 import Shell from './components/Shell'
 import Dashboard from './components/Dashboard'
@@ -68,6 +69,7 @@ export default function App() {
   const finishQuiz = useCallback((session: QuizSession) => {
     if (finishedIds.current.has(session.id)) return
     finishedIds.current.add(session.id)
+    markQuestionsUsed(session)
     const result = calculateResult(session)
     setAttempts(current => mergeAttempts(current, [result]))
     writeStorage('attempts', mergeAttempts(getCachedAttempts(), [result]))
