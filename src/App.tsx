@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, Check, Info, Search, X, Zap } from 'lucide-react'
 import type { Attempt, CourseCode, QuizSession, Student } from './types'
 import { subjects } from './data/subjects'
 import { calculateResult } from './services/quiz'
-import { getActiveSession, getCachedAttempts, getStudent, mergeAttempts, readStorage, writeStorage } from './services/storage'
+import { mergeAttempts, readStorage, writeStorage } from './services/storage'
 import { markQuestionsUsed } from './services/questionUsage'
 import { fetchCloudAttempts, fetchCloudProgress, fetchCloudStudent, saveCloudAttempt, saveCloudProgress } from './services/cloudProgress'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
@@ -105,6 +105,10 @@ export default function App() {
     if (finishedIds.current.has(session.id)) return
     finishedIds.current.add(session.id)
     markQuestionsUsed(session)
+    if (student?.userId) {
+      const questionUsage = readStorage<Record<string, string[]>>('question-usage', {})
+      void saveCloudProgress(student.userId, { question_usage: questionUsage }).catch(() => setMessage('Question practice progress could not sync.'))
+    }
     const result = calculateResult(session)
     setAttempts(current => mergeAttempts(current, [result]))
     writeStorage('attempts', mergeAttempts(getCachedAttempts(), [result]))
