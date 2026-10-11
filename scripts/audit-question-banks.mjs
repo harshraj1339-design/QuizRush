@@ -3,7 +3,12 @@ import { readFileSync } from 'node:fs'
 const files = [
   ['CSE205', 'src/data/questions/cse205.ts', 450],
   ['CSE202', 'src/data/questions/cse202.ts', 450],
-  ['CSE306', 'src/data/questions/cse306.ts', 600],
+  ['CSE306 Unit I', 'src/data/questions/cse306-unit1.ts', 100],
+  ['CSE306 Unit II', 'src/data/questions/cse306-unit2.ts', 100],
+  ['CSE306 Unit III', 'src/data/questions/cse306-unit3.ts', 100],
+  ['CSE306 Unit IV', 'src/data/questions/cse306-unit4.ts', 100],
+  ['CSE306 Unit V', 'src/data/questions/cse306-unit5.ts', 100],
+  ['CSE306 Unit VI', 'src/data/questions/cse306-unit6.ts', 100],
   ['CSE423', 'src/data/questions/cse423.ts', 600],
   ['MTH401', 'src/data/questions/mth401.ts', 600],
   ['INT335', 'src/data/questions/int335.ts', 600],
