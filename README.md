@@ -1,6 +1,6 @@
 # QuizRush
 
-**Revise Fast. Score High.** QuizRush is a responsive Semester 3 exam-preparation app with six subjects, unit selection, timed 25-question practice, immediate answer explanations, answer review, and quiz history.
+**Revise Fast. Score High.** QuizRush is a responsive MCQ practice and exam-preparation app with six subjects, unit selection, timed 25-question practice, immediate answer explanations, answer review, and quiz history.
 
 ## Technology
 
@@ -49,8 +49,8 @@ The admin dashboard is available at `/#/admin`. It uses Supabase Auth and checks
 - Duplicate registration IDs are rejected by the database unique constraint.
 - Admins can search and view up to 500 student records and review the 1,000 most recent entry events. Every successful onboarding submission is logged separately, including repeat visits using the same registration ID.
 - Quiz sessions, completed attempts, and history currently remain in browser storage. They are not yet linked to the student registry or synced between devices.
-- The app contains 150 original demo questions: 25 per subject. These are not the planned 100-question-per-subject verified release.
-- Syllabus titles and unit assignments remain provisional until the official course documents are reviewed.
+- The current question bank contains 150 original practice questions: 25 per subject. Expand and review the question bank against official course materials before relying on it for exam coverage.
+- Syllabus titles and unit assignments require review against official course documents.
 
 ## Before release
 
