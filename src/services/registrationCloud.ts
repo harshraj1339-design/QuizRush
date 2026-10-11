@@ -9,6 +9,7 @@ export type RegistrationCloudData = {
   question_usage: Record<string, string[]>
   bookmarked_questions: string[]
   updated_at?: string
+  clear_active?: boolean
 }
 
 export async function fetchRegistrationData(registration: string): Promise<RegistrationCloudData | null> {
