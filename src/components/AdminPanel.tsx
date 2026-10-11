@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ArrowLeft, LogOut, RefreshCw, Search, ShieldCheck, Users } from 'lucide-react'
+import { ArrowLeft, Clock3, LogOut, Moon, RefreshCw, Search, ShieldCheck, Sun, Users } from 'lucide-react'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
 type LoginEvent = {
@@ -8,6 +8,8 @@ type LoginEvent = {
   registration_id: string
   logged_in_at: string
 }
+
+type ActivityRecord = { registration_id: string; student_name: string; seconds_spent: number; last_seen_at: string }
 
 type StudentRecord = {
   id: string
@@ -27,6 +29,13 @@ export default function AdminPanel() {
   const [loginEvents, setLoginEvents] = useState<LoginEvent[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [darkMode, setDarkMode] = useState(() => { try { return localStorage.getItem('quizrush:admin-theme') === 'dark' } catch { return false } })
+  const [activity, setActivity] = useState<ActivityRecord[]>([])
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = darkMode ? 'dark' : 'light'
+    try { localStorage.setItem('quizrush:admin-theme', darkMode ? 'dark' : 'light') } catch { /* optional */ }
+  }, [darkMode])
 
   async function checkSession() {
     setChecking(true)
@@ -70,6 +79,9 @@ export default function AdminPanel() {
         .limit(1000)
       if (eventError) throw eventError
       setLoginEvents((eventData || []) as LoginEvent[])
+      const { data: activityData, error: activityError } = await supabase.from('student_activity_sessions').select('registration_id,student_name,seconds_spent,last_seen_at').order('last_seen_at', { ascending: false }).limit(5000)
+      if (activityError) throw activityError
+      setActivity((activityData || []) as ActivityRecord[])
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Could not load the student directory.')
     } finally { setLoading(false) }
@@ -103,6 +115,7 @@ export default function AdminPanel() {
     setAuthenticated(false)
     setStudents([])
     setLoginEvents([])
+    setActivity([])
   }
 
   if (checking) return <main className="onboarding"><section className="panel"><p>Checking admin session…</p></section></main>
@@ -115,10 +128,19 @@ export default function AdminPanel() {
     </div>
   </main>
 
-  return <main className="app-shell" style={{ minHeight: '100vh', padding: 'clamp(20px, 5vw, 56px)', background: 'var(--page, #f7f8fc)' }}>
+  const activityByRegistration = activity.reduce<Record<string, { name: string; seconds: number; lastSeen: string }>>((acc, row) => {
+    const current = acc[row.registration_id] ?? { name: row.student_name, seconds: 0, lastSeen: row.last_seen_at }
+    current.seconds += row.seconds_spent
+    if (Date.parse(row.last_seen_at) > Date.parse(current.lastSeen)) current.lastSeen = row.last_seen_at
+    acc[row.registration_id] = current
+    return acc
+  }, {})
+  const formatDuration = (seconds: number) => { const hours = Math.floor(seconds / 3600); const minutes = Math.floor((seconds % 3600) / 60); const secs = seconds % 60; return hours ? hours + 'h ' + minutes + 'm' : minutes ? minutes + 'm ' + secs + 's' : secs + 's' }
+
+  return <main data-theme={darkMode ? 'dark' : 'light'} className={'app-shell ' + (darkMode ? 'admin-dark' : '')} style={{ minHeight: '100vh', padding: 'clamp(20px, 5vw, 56px)', background: darkMode ? '#101322' : 'var(--page, #f7f8fc)', color: darkMode ? '#f3f4f6' : 'var(--text, #172033)' }}>
     <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 28 }}>
       <div><span className="eyebrow"><ShieldCheck size={16} /> ADMIN CONSOLE</span><h1 style={{ margin: '8px 0' }}>Registered students</h1><p>Student details are visible only to authorized administrators.</p></div>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}><button className="button secondary" onClick={() => void loadStudents()}><RefreshCw size={16} /> Refresh</button><button className="button secondary" onClick={() => void signOut()}><LogOut size={16} /> Sign out</button></div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}><button className="button secondary" onClick={() => setDarkMode(value => !value)}>{darkMode ? <Sun size={16} /> : <Moon size={16} />}{darkMode ? 'Light mode' : 'Dark mode'}</button><button className="button secondary" onClick={() => void loadStudents()}><RefreshCw size={16} /> Refresh</button><button className="button secondary" onClick={() => void signOut()}><LogOut size={16} /> Sign out</button></div>
     </header>
     <section className="panel" style={{ padding: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 20 }}>
@@ -129,7 +151,7 @@ export default function AdminPanel() {
       {loading ? <p>Loading student records…</p> : students.length === 0 ? <p>No student registrations found.</p> : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}><thead><tr>{['Full name', 'Registration ID', 'Semester', 'Registered on'].map(label => <th key={label} style={{ padding: '12px 10px', borderBottom: '1px solid var(--border, #ddd)' }}>{label}</th>)}</tr></thead><tbody>{students.map(student => <tr key={student.id}>{[student.name, student.registration_id, String(student.semester), new Date(student.created_at).toLocaleString()].map((value, index) => <td key={index} style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{value}</td>)}</tr>)}</tbody></table></div>}
       <p className="privacy-note">Showing up to 500 registered students.</p>
     </section>
-    <section className="panel" style={{ padding: 24, marginTop: 24 }}>
+    <section className="panel" style={{ padding: 24, marginTop: 24, background: darkMode ? '#191d2e' : undefined, color: darkMode ? '#f3f4f6' : undefined, borderColor: darkMode ? '#30364b' : undefined }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
         <RefreshCw size={22} /><strong>{loginEvents.length} recent quiz entries</strong>
       </div>
@@ -144,6 +166,11 @@ export default function AdminPanel() {
         </table>
       </div>}
       <p className="privacy-note">Shows up to 1,000 most recent entry events. Repeated entries are listed separately.</p>
+    </section>
+    <section className="panel" style={{ padding: 24, marginTop: 24, background: darkMode ? '#191d2e' : undefined, color: darkMode ? '#f3f4f6' : undefined, borderColor: darkMode ? '#30364b' : undefined }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}><Clock3 size={22} /><strong>Website time spent by students</strong></div>
+      {loading ? <p>Loading activity…</p> : Object.keys(activityByRegistration).length === 0 ? <p>No activity durations recorded yet. Apply the activity-tracking migration and have students use the updated app.</p> : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}><thead><tr>{['Student name', 'Registration ID', 'Time on website', 'Last active'].map(label => <th key={label} style={{ padding: '12px 10px', borderBottom: '1px solid var(--border, #ddd)' }}>{label}</th>)}</tr></thead><tbody>{Object.entries(activityByRegistration).sort((a, b) => b[1].seconds - a[1].seconds).map(([registration, row]) => <tr key={registration}><td style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{row.name}</td><td style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{registration}</td><td style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{formatDuration(row.seconds)}</td><td style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{new Date(row.lastSeen).toLocaleString()}</td></tr>)}</tbody></table></div>}
+      <p className="privacy-note">Approximate active time is recorded while the QuizRush tab is visible. Registration IDs are self-entered, so this is not verified attendance.</p>
     </section>
   </main>
 }
