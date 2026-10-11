@@ -30,7 +30,7 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
     </div>
     <div className="form-field">
       <label htmlFor="registration">LPU registration number <span>*</span></label>
-      <input id="registration" className={errors.registration ? 'input-error' : ''} value={registration} onChange={event => setRegistration(event.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="8-digit registration number" inputMode="numeric" pattern="[0-9]{8}" autoComplete="off" maxLength={8} required aria-invalid={!!errors.registration} />
+      <input id="registration" className={errors.registration ? 'input-error' : ''} value={registration} onChange={event => setRegistration(event.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="eg. 12512814" inputMode="numeric" pattern="[0-9]{8}" autoComplete="off" maxLength={8} required aria-invalid={!!errors.registration} />
       {errors.registration && <p className="field-error">{errors.registration}</p>}
     </div>
     <button className="button primary form-submit" type="submit" disabled={submitting}>{submitting ? 'Saving…' : initial ? 'Save Profile' : 'Start Practicing'}<ArrowRight size={18} /></button>

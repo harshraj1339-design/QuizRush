@@ -75,4 +75,4 @@ export const subjects: Subject[] = courseDefinitions.map(([code, name, descripti
 }))
 
 export const getSubject = (code: CourseCode) => subjects.find(subject => subject.code === code)!
-export const syllabusNotice = 'Unit titles and topic summaries follow the available Session 2026–27 syllabi. CSE423 titles and topics are provisional, based on available course notes, pending confirmation against its official syllabus.'
+export const syllabusNotice = 'Unit titles and topic summaries follow the available Session 2026–27 syllabus .'
