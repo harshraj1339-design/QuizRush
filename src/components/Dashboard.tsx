@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ArrowRight, Check, Clock3, ListChecks, Target, TrendingUp, Zap } from 'lucide-react'
+import { ArrowRight, BookOpenCheck, Check, Clock3, ListChecks, Target, TrendingUp, Zap } from 'lucide-react'
 import type { Attempt, Student } from '../types'
 import { getSubject, subjects } from '../data/subjects'
 import { RevisionArt } from './Brand'
@@ -18,6 +18,7 @@ export default function Dashboard({ student, attempts, navigate, quickQuiz }: { 
       <section className="focus-card"><div className="card-section-heading"><h3>Your preparation</h3><span className="focus-icon"><Target size={19} /></span></div><div className="coverage-ring" style={{ background: `conic-gradient(var(--primary) ${coveredUnits / 36 * 360}deg, var(--ring-track) 0deg)` }} role="img" aria-label={`${coveredUnits} of 36 units practiced`}><div><strong>{Math.round(coveredUnits / 36 * 100)}<span>%</span></strong><span>practiced</span></div></div><div className="focus-count"><span className="tiny-dot" />{coveredUnits} units practiced</div></section></div>
     <div className="metrics-grid"><Metric icon={<ListChecks size={21} />} label="Quizzes attempted" value={String(attempts.length)} note="" color="violet" /><Metric icon={<TrendingUp size={21} />} label="Average score" value={average === null ? '—' : `${average}%`} note="" color="blue" /><Metric icon={<Check size={21} />} label="Correct answers" value={String(correct)} note="" color="green" /><Metric icon={<Clock3 size={21} />} label="Time invested" value={`${totalMinutes}m`} note="" color="orange" /></div>
     <section className="subjects-section"><div className="section-heading"><div><h2>Your subjects</h2></div><button className="text-button" onClick={() => navigate('/subjects')}>View all subjects<ArrowRight size={16} /></button></div><div className="subject-grid">{subjects.map(subject => <SubjectCard key={subject.code} subject={subject} attempts={attempts} onClick={() => navigate(`/subject/${subject.code}`)} />)}</div></section>
+    <section className="panel question-library-cta"><div><span className="eyebrow">FULL QUESTION BANK</span><h2>Browse every available question</h2><p>Search by subject, unit, question text, option, or explanation. Review correct answers at your own pace.</p></div><button className="button primary" onClick={() => navigate('/browse-questions')}><BookOpenCheck size={17} />Browse questions<ArrowRight size={16} /></button></section>
 
   </>
 }
