@@ -1,5 +1,8 @@
 import { makeQuestions } from './helpers'
 
+// RELEASE BLOCKED: answer keys, distractors, and unit alignment have not been fully verified.
+// The official CSE423 syllabus has not been confirmed; do not publish this bank as syllabus-verified.
+// See docs/question-bank-review-2026-10-11.md for required corrections.
 // Draft question bank: 100 entries per unit, 600 total.
 // Unit topics follow the syllabus-related notes found in the project library. Repeated stem patterns and answer choices still require editorial review before release.
 const seeds = [
