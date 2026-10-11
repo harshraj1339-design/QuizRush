@@ -4,6 +4,7 @@ import type { Question, QuizSession } from '../types'
 import { getSubject, romanUnits } from '../data/subjects'
 import { formatTime } from '../services/quiz'
 import { readStorage, writeStorage } from '../services/storage'
+import { saveCloudProgress } from '../services/cloudProgress'
 import { Logo } from './Brand'
 import { Modal } from './Common'
 
@@ -24,7 +25,7 @@ export function Explanation({ question, selected, review = false }: { question: 
   return <div className={`explanation ${correct ? 'explanation-correct' : selected ? 'explanation-incorrect' : ''}`} role={review ? undefined : 'status'}><span className="explanation-icon"><Lightbulb size={20} /></span><div><strong>{!selected ? 'Unanswered — here’s the explanation' : correct ? 'Nice work. You got it right!' : 'A mistake today. A lesson for exam day.'}</strong><p>{question.explanation}</p><span>{question.topic} · Unit {romanUnits[question.unitNumber - 1]}</span></div></div>
 }
 
-export default function QuizView({ session, onChange, onFinish, onExit }: { session: QuizSession; onChange: (session: QuizSession) => void; onFinish: (session: QuizSession) => void; onExit: () => void }) {
+export default function QuizView({ session, onChange, onFinish, onExit, userId }: { session: QuizSession; onChange: (session: QuizSession) => void; onFinish: (session: QuizSession) => void; onExit: () => void; userId?: string }) {
   const [remaining, setRemaining] = useState(() => Math.max(0, Math.ceil((session.startedAt + session.durationMinutes * 60000 - Date.now()) / 1000)))
   const [dialog, setDialog] = useState<'submit' | 'exit' | null>(null)
   const [bookmarked, setBookmarked] = useState<string[]>(() => readStorage<string[]>('bookmarkedQuestions', []))
@@ -58,6 +59,7 @@ export default function QuizView({ session, onChange, onFinish, onExit }: { sess
       : [...bookmarked, question.id]
     setBookmarked(next)
     writeStorage('bookmarkedQuestions', next)
+    if (userId) void saveCloudProgress(userId, { bookmarked_questions: next }).catch(() => window.dispatchEvent(new CustomEvent('quizrush-storage-error')))
   }
   function answer(id: string) {
     if (session.answers[question.id] || remaining === 0 || Date.now() >= session.startedAt + session.durationMinutes * 60000) return
