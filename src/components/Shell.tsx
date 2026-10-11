@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { BookOpen, ChevronDown, ChevronRight, GraduationCap, History, LayoutDashboard, LogOut, Menu, Moon, Sun, UserRound, X } from 'lucide-react'
+import { BookOpen, BookOpenCheck, ChevronDown, ChevronRight, GraduationCap, History, LayoutDashboard, LogOut, Menu, Moon, Sun, UserRound, X } from 'lucide-react'
 import type { Student } from '../types'
 import { Logo } from './Brand'
 import { Modal } from './Common'
@@ -7,6 +7,7 @@ import { Modal } from './Common'
 const navigation = [
   { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
   { path: '/subjects', name: 'Subjects', icon: BookOpen },
+  { path: '/browse-questions', name: 'Browse Questions', icon: BookOpenCheck },
   { path: '/history', name: 'Quiz History', icon: History },
   { path: '/profile', name: 'Profile', icon: UserRound },
 ]
@@ -16,7 +17,7 @@ export default function Shell({ student, route, navigate, dark, toggleTheme, onL
 }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
-  const pageTitle = route.startsWith('/subject/') ? 'Practice setup' : route.startsWith('/results/') ? 'Quiz results' : route.startsWith('/review/') ? 'Answer review' : navigation.find(item => route.startsWith(item.path))?.name || 'Dashboard'
+  const pageTitle = route.startsWith('/subject/') ? 'Practice setup' : route.startsWith('/browse-questions') ? 'Browse Questions' : route.startsWith('/results/') ? 'Quiz results' : route.startsWith('/review/') ? 'Answer review' : navigation.find(item => route.startsWith(item.path))?.name || 'Dashboard'
   function go(path: string) { navigate(path); setMobileOpen(false) }
   return <div className="app-layout">
     {mobileOpen && <button className="sidebar-scrim" aria-label="Close navigation" onClick={() => setMobileOpen(false)} />}
