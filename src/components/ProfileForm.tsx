@@ -12,11 +12,11 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setErrors({})
-    const cleanName = name.trim().replace(/\\s+/g, ' ')
+    const cleanName = name.trim().replace(/\s+/g, ' ')
     const cleanRegistration = registration.trim()
     const nextErrors: Record<string, string> = {}
-    if (!/^[\\p{L}]+(?:[ '\\u2019-][\\p{L}]+)*$/u.test(cleanName) || cleanName.length < 2 || cleanName.length > 80) nextErrors.name = 'Enter a valid full name.'
-    if (!/^\\d{8}$/.test(cleanRegistration)) nextErrors.registration = 'Enter your 8-digit university registration number.'
+    if (!/^[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u.test(cleanName) || cleanName.length < 2 || cleanName.length > 80) nextErrors.name = 'Enter a valid full name.'
+    if (!/^\d{8}$/.test(cleanRegistration)) nextErrors.registration = 'Enter your 8-digit university registration number.'
     if (Object.keys(nextErrors).length) { setErrors(nextErrors); return }
     if (!isSupabaseConfigured) {
       setErrors({ form: 'Student registration is temporarily unavailable because the database is not configured. Please try again later.' })
@@ -57,12 +57,12 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
   return <form className="profile-form" onSubmit={handleSubmit} noValidate>
     <div className="form-field">
       <label htmlFor="full-name">Full name <span>*</span></label>
-      <div className={'input-with-icon ' + (errors.name ? 'input-error' : '')}><UserRound size={18} /><input id="full-name" value={name} onChange={event => setName(event.target.value.replace(/[^\\p{L} '\\u2019-]/gu, ''))} placeholder="Enter your full name" autoComplete="name" maxLength={80} required aria-invalid={!!errors.name} /></div>
+      <div className={'input-with-icon ' + (errors.name ? 'input-error' : '')}><UserRound size={18} /><input id="full-name" value={name} onChange={event => setName(event.target.value.replace(/[^\p{L} '\u2019-]/gu, ''))} placeholder="Enter your full name" autoComplete="name" maxLength={80} required aria-invalid={!!errors.name} /></div>
       {errors.name && <p className="field-error">{errors.name}</p>}
     </div>
     <div className="form-field">
       <label htmlFor="registration">LPU registration number <span>*</span></label>
-      <input id="registration" className={errors.registration ? 'input-error' : ''} value={registration} onChange={event => setRegistration(event.target.value.replace(/\\D/g, '').slice(0, 8))} placeholder="eg. 12512814" inputMode="numeric" pattern="[0-9]{8}" autoComplete="off" maxLength={8} required aria-invalid={!!errors.registration} />
+      <input id="registration" className={errors.registration ? 'input-error' : ''} value={registration} onChange={event => setRegistration(event.target.value.replace(/\D/g, '').slice(0, 8))} placeholder="eg. 12512814" inputMode="numeric" pattern="[0-9]{8}" autoComplete="off" maxLength={8} required aria-invalid={!!errors.registration} />
       {errors.registration && <p className="field-error">{errors.registration}</p>}
     </div>
     {errors.form && <p className="field-error" role="alert">{errors.form}</p>}
