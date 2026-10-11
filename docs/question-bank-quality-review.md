@@ -15,9 +15,9 @@ Status: **NOT APPROVED FOR PUBLIC RELEASE**. This is a structural/content-patter
 
 ## CI status
 
-A GitHub Actions run failed at dependency installation, before application compilation: `npm ci` reported that `package.json` and `package-lock.json` were out of sync, specifically missing Supabase packages in the lockfile. The workflow was changed to `npm install --no-audit --no-fund` to allow CI to resolve dependencies. That change's own run reported success; this confirms the workflow completed successfully, but does not prove question correctness or replace a clean, committed lockfile.
+The latest GitHub Actions run for commit `62d25bde9ce3c83502db7c78335344a9f0b90549` completed successfully, including the application build. The workflow currently uses `npm install --no-audit --no-fund` because `npm ci` previously reported that `package.json` and `package-lock.json` were out of sync. The successful build validates compilation at this commit; it does not prove question correctness or replace the need to synchronize and commit the lockfile.
 
-## Corrections recorded
+## Latest validation\n\n- GitHub Actions run 32: **success** (dependency installation and application build both passed).\n- CSE306 structural scan: 600 rows, 100 per unit, 60 unique stems; the stem duplication is still a critical release blocker.\n- CSE205 structural scan: 450 rows, target unit counts met, 444 unique stems; duplicated stems remain.\n- CSE202 structural scan: 450 rows, target unit counts met, 450 unique stems. This is a structural result only, not answer-key verification.\n- CSE423, MTH401, and INT335 each have 600 rows and 600 distinct stems in a simple exact-stem scan; template similarity and factual correctness still require deeper review.\n\n## Corrections recorded
 
 - CSE205 restored to 450 entries with the intended unit counts.
 - CSE306 tuple layout and answer-key placement repaired and generic filler distractors replaced; its 540 duplicate stems and unverified distractor plausibility remain release blockers.
