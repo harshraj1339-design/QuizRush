@@ -1009,3 +1009,31 @@ button:disabled:not(.answer-option):not(.unit-card) { opacity: .45; }
   .subject-card-meta, .subject-card-bottom { font-size: 13px; }
   .subject-card h3 { font-size: 17px; }
 }
+
+
+/* Mobile-first onboarding layout */
+@media (max-width: 760px) {
+  .onboarding-clean { min-height: 100dvh; padding: 0 18px; overflow-x: hidden; }
+  .onboarding-clean .onboarding-header { height: 66px; padding: 0; gap: 12px; }
+  .onboarding-clean .brand { font-size: 24px; }
+  .onboarding-clean .brand-mark { width: 42px; height: 42px; }
+  .onboarding-clean .onboarding-badge { font-size: 11px; }
+  .onboarding-body-clean { display: flex; flex-direction: column; align-items: stretch; gap: 22px; width: 100%; padding: 28px 0 24px; }
+  .welcome-story-clean { text-align: left; padding: 0 2px; }
+  .welcome-story-clean > .eyebrow { font-size: 10px; }
+  .welcome-story-clean h1 { font-size: clamp(38px, 11vw, 48px); line-height: 1.08; margin: 12px 0; }
+  .welcome-story-clean .welcome-description { font-size: 15px; line-height: 1.65; }
+  .welcome-form-card-clean { width: 100%; max-width: none; min-width: 0; padding: 24px 20px 22px; border-radius: 16px; }
+  .welcome-form-card-clean h2 { font-size: 26px; }
+  .welcome-form-card-clean > p { font-size: 14px; }
+  .welcome-form-card-clean .profile-form { gap: 16px; margin-top: 20px; }
+  .welcome-form-card-clean .form-field { min-width: 0; }
+  .welcome-form-card-clean input { width: 100%; min-width: 0; box-sizing: border-box; }
+  .welcome-form-card-clean .form-submit { width: 100%; min-height: 50px; }
+  .onboarding-footer-clean { padding: 14px 0 20px; font-size: 11px; }
+}
+@media (max-width: 380px) {
+  .onboarding-clean { padding: 0 14px; }
+  .welcome-form-card-clean { padding: 21px 16px; }
+  .welcome-story-clean h1 { font-size: 36px; }
+}
