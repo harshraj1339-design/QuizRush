@@ -20,14 +20,14 @@ A GitHub Actions run failed at dependency installation, before application compi
 ## Corrections recorded
 
 - CSE205 restored to 450 entries with the intended unit counts.
-- CSE306 tuple layout and answer-key placement repaired, but its 540 duplicate stems and filler distractors remain release blockers.
+- CSE306 tuple layout and answer-key placement repaired and generic filler distractors replaced; its 540 duplicate stems and unverified distractor plausibility remain release blockers.
 - CSE423 and MTH401 repeated unrelated filler distractors replaced with subject-related alternatives.
 - CI dependency-install step adjusted to get past the lockfile mismatch.
 - All changes remain on `feature/supabase-backend`; no changes were merged into `main`.
 
 ## Release blockers
 
-1. Rewrite CSE306 repeated templates into genuinely distinct questions, replace filler distractors, and verify answer keys and explanations.
+1. Rewrite CSE306 repeated templates into genuinely distinct questions, assess distractor plausibility, and verify answer keys and explanations.
 2. Review CSE205 and CSE202 answer keys/explanations against the official syllabi and remove duplicate/ambiguous items.
 3. Rewrite template-heavy CSE423, MTH401, and INT335 items with plausible distractors and accurate explanations.
 4. Confirm every unit assignment against official course syllabi; INT335 unit mapping remains provisional.
