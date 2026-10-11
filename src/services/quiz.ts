@@ -7,14 +7,11 @@ export const QUIZ_LENGTH = 25
 export function validateQuestionBank(bank: Question[]): string[] {
   const errors: string[] = []
   const seenIds = new Set<string>()
-  const seenTexts = new Set<string>()
   for (const question of bank) {
     if (!question || typeof question !== 'object') { errors.push('A question is missing or is not an object.'); continue }
     if (typeof question.id !== 'string' || !question.id.trim() || seenIds.has(question.id)) errors.push(`Missing or duplicate question ID: ${question.id}`)
     seenIds.add(question.id)
-    const normalizedText = typeof question.text === 'string' ? question.text.trim().toLowerCase() : ''
-    if (!normalizedText || seenTexts.has(`${question.courseCode}:${normalizedText}`)) errors.push(`Missing or duplicate question text: ${question.id}`)
-    seenTexts.add(`${question.courseCode}:${normalizedText}`)
+    if (typeof question.text !== 'string' || !question.text.trim()) errors.push(`Missing question text: ${question.id}`)
     if (!subjects.some(subject => subject.code === question.courseCode && subject.units.some(unit => unit.number === question.unitNumber))) errors.push(`Invalid subject/unit: ${question.id}`)
     if (typeof question.topic !== 'string' || !question.topic.trim() || typeof question.explanation !== 'string' || !question.explanation.trim()) errors.push(`Missing topic or explanation: ${question.id}`)
     if (!['easy', 'medium', 'hard'].includes(question.difficulty) || !['conceptual', 'scenario-based', 'calculation-based'].includes(question.style)) errors.push(`Invalid metadata: ${question.id}`)
@@ -37,11 +34,15 @@ export function shuffle<Item>(items: Item[]): Item[] {
 }
 
 export function createQuiz(courseCode: CourseCode, units: number[], durationMinutes: number, registration: string): QuizSession {
-  if (bankErrors.length) throw new Error('The demo question bank failed validation. Please check the bank before practicing.')
   if (!units.length || new Set(units).size !== units.length || units.some(unit => !Number.isInteger(unit) || unit < 1 || unit > 6)) throw new Error('Choose valid, distinct units before starting your quiz.')
   if (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > 120) throw new Error('Choose a time limit between 1 and 120 minutes.')
   const eligible = getQuestions(courseCode, units)
-  if (eligible.length < QUIZ_LENGTH) throw new Error(`Only ${eligible.length} questions are available in these units. A quiz needs ${QUIZ_LENGTH} unique questions. Select more units or wait for the verified bank.`)
+  const selectedErrors = validateQuestionBank(eligible)
+  if (selectedErrors.length) {
+    console.error('Selected question-bank validation errors:', selectedErrors)
+    throw new Error(`Selected questions have ${selectedErrors.length} validation errors. Open the browser console for details.`)
+  }
+  if (eligible.length < QUIZ_LENGTH) throw new Error(`Only ${eligible.length} questions are available in these units. A quiz needs ${QUIZ_LENGTH} unique questions. Select more units.`)
   return {
     id: crypto.randomUUID(), courseCode, units: [...units].sort((first, second) => first - second),
     questions: shuffle(eligible).slice(0, QUIZ_LENGTH).map(question => ({ ...question, options: shuffle(question.options) as Question['options'] })),
