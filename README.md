@@ -27,16 +27,17 @@ These are public frontend configuration values. Never put a Supabase service-rol
 
 1. Create or open your Supabase project.
 2. Open **SQL Editor** and run `supabase/migrations/20261010000100_quizrush_student_registry.sql`.
-3. Copy the Project URL and publishable/anon key into `.env.local`.
-4. In **Authentication → Users**, create an administrator account with email and password.
-5. Copy that user's UUID, then run this SQL in the SQL Editor, replacing the placeholder with the actual UUID:
+3. Run `supabase/migrations/20261011000100_student_login_events.sql` to create the repeat-entry history table.
+4. Copy the Project URL and publishable/anon key into `.env.local`.
+5. In **Authentication → Users**, create an administrator account with email and password.
+6. Copy that user's UUID, then run this SQL in the SQL Editor, replacing the placeholder with the actual UUID:
 
    ```sql
    insert into public.admin_users (user_id)
    values ('REPLACE_WITH_ADMIN_AUTH_USER_UUID');
    ```
 
-6. Add the same two frontend environment variables to your hosting provider and redeploy.
+7. Add the same two frontend environment variables to your hosting provider and redeploy.
 
 The admin dashboard is available at `/#/admin`. It uses Supabase Auth and checks the `admin_users` table. Row Level Security protects student directory reads; ordinary visitors can register a profile but cannot list student records. Keep the `admin_users` table restricted to authorized administrator records.
 
@@ -46,7 +47,7 @@ The admin dashboard is available at `/#/admin`. It uses Supabase Auth and checks
 
 - Student name, registration ID, semester, and registration timestamp are stored in Supabase.
 - Duplicate registration IDs are rejected by the database unique constraint.
-- Admins can search and view up to 500 student records.
+- Admins can search and view up to 500 student records and review the 1,000 most recent entry events. Every successful onboarding submission is logged separately, including repeat visits using the same registration ID.
 - Quiz sessions, completed attempts, and history currently remain in browser storage. They are not yet linked to the student registry or synced between devices.
 - The app contains 150 original demo questions: 25 per subject. These are not the planned 100-question-per-subject verified release.
 - Syllabus titles and unit assignments remain provisional until the official course documents are reviewed.
