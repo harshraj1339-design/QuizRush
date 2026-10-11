@@ -9,7 +9,7 @@ export interface Question {
   text: string; options: [Option, Option, Option, Option]; correctOptionId: string;
   explanation: string; difficulty: Difficulty; style: QuestionStyle
 }
-export interface Student { name: string; registration: string; semester: 3 }
+export interface Student { name: string; registration: string; semester: 3; userId?: string; email?: string }
 export interface QuizSession {
   id: string; courseCode: CourseCode; units: number[]; questions: Question[];
   answers: Record<string, string>; currentIndex: number; startedAt: number; durationMinutes: number;
