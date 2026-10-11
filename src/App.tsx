@@ -103,6 +103,17 @@ export default function App() {
   }, [student?.registration])
 
   useEffect(() => {
+    function syncBookmarks() {
+      if (!student || !cloudReady.current) return
+      void saveRegistrationData(student, {
+        bookmarked_questions: readStorage<string[]>('bookmarkedQuestions:' + student.registration, []),
+      }).catch(() => setMessage('Bookmarks could not sync to the cloud.'))
+    }
+    window.addEventListener('quizrush-bookmarks-changed', syncBookmarks)
+    return () => window.removeEventListener('quizrush-bookmarks-changed', syncBookmarks)
+  }, [student?.registration, student?.name])
+
+  useEffect(() => {
     if (!student || !cloudReady.current) return
     if (cloudSaveTimer.current !== null) window.clearTimeout(cloudSaveTimer.current)
     cloudSaveTimer.current = window.setTimeout(() => {
@@ -110,6 +121,7 @@ export default function App() {
       void saveRegistrationData(student, {
         attempts: attempts.filter(attempt => attempt.registration === student.registration),
         active_session: current,
+        clear_active: !current,
         question_usage: readStorage<Record<string, string[]>>('question-usage', {}),
         bookmarked_questions: readStorage<string[]>('bookmarkedQuestions:' + student.registration, []),
       }).catch(() => setMessage('Cloud progress could not save. Your local copy is still available.'))
