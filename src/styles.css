@@ -904,3 +904,205 @@ button:disabled:not(.answer-option):not(.unit-card) { opacity: .45; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+
+/* Clean, compact student onboarding refresh */
+.onboarding-clean { padding: 0 clamp(22px, 7vw, 112px); }
+.onboarding-clean .onboarding-header { max-width: 1180px; margin: 0 auto; }
+.onboarding-clean .onboarding-badge { background: transparent; border: 0; color: var(--body-muted); }
+.onboarding-body-clean { max-width: 1120px; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); gap: clamp(48px, 8vw, 120px); align-items: center; padding: 54px 0 48px; }
+.welcome-story-clean { padding-top: 0; }
+.welcome-story-clean > .eyebrow { padding: 0; background: transparent; letter-spacing: 1.2px; }
+.welcome-story-clean h1 { margin: 22px 0 16px; font-size: clamp(48px, 5vw, 68px); line-height: 1.08; }
+.welcome-story-clean .welcome-description { font-size: 16px; line-height: 1.8; }
+.welcome-form-card-clean { width: 100%; max-width: 440px; justify-self: end; padding: 36px 34px 26px; border-radius: 18px; box-shadow: 0 18px 55px #25253e0a; }
+.welcome-form-card-clean > .eyebrow { margin-bottom: 14px; }
+.welcome-form-card-clean h2 { font-size: 30px; line-height: 1.2; margin-bottom: 10px; }
+.welcome-form-card-clean > p { font-size: 13px; line-height: 1.6; }
+.welcome-form-card-clean .profile-form { margin-top: 24px; gap: 17px; }
+.welcome-form-card-clean .privacy-note { display: none; }
+.onboarding-privacy { margin-top: 18px; color: var(--muted); font-size: 10px !important; line-height: 1.6 !important; }
+.onboarding-footer-clean { max-width: 1180px; margin: 0 auto; padding: 14px 0 22px; justify-content: flex-start; color: var(--muted); }
+.brand-mark-new { border-radius: 12px; background: linear-gradient(145deg, #7357f0, #5940d2); box-shadow: 0 5px 12px #6b50e426; }
+.brand-mark-new > svg { transform: none !important; }
+@media (max-width: 760px) {
+  .onboarding-clean { padding: 0 22px; }
+  .onboarding-clean .onboarding-header { height: 72px; }
+  .onboarding-body-clean { grid-template-columns: 1fr; gap: 24px; padding: 28px 0 30px; }
+  .welcome-story-clean { text-align: center; }
+  .welcome-story-clean h1 { font-size: clamp(38px, 10vw, 48px); margin: 14px 0 10px; }
+  .welcome-story-clean .welcome-description { font-size: 13px; }
+  .welcome-form-card-clean { justify-self: center; max-width: 440px; padding: 27px 24px 24px; }
+  .welcome-form-card-clean h2 { font-size: 25px; }
+  .onboarding-footer-clean { justify-content: center; padding-bottom: 18px; }
+}
+
+
+/* Improve readability on the onboarding screen */
+.onboarding-clean .brand { font-size: 28px; }
+.onboarding-clean .onboarding-badge { font-size: 13px; }
+.welcome-story-clean > .eyebrow,
+.welcome-form-card-clean > .eyebrow { font-size: 12px; letter-spacing: 1.1px; }
+.welcome-story-clean .welcome-description { font-size: 18px; }
+.welcome-form-card-clean h2 { font-size: 32px; }
+.welcome-form-card-clean > p { font-size: 15px; }
+.welcome-form-card-clean .form-field label { font-size: 14px; }
+.welcome-form-card-clean input,
+.welcome-form-card-clean select { font-size: 15px; min-height: 50px; }
+.welcome-form-card-clean input::placeholder { font-size: 14px; }
+.welcome-form-card-clean .field-help,
+.welcome-form-card-clean .field-error { font-size: 12px; }
+.welcome-form-card-clean .form-submit { min-height: 50px; font-size: 15px; }
+.onboarding-footer-clean { font-size: 12px; }
+@media (max-width: 760px) {
+  .welcome-story-clean .welcome-description { font-size: 15px; }
+  .welcome-form-card-clean h2 { font-size: 27px; }
+  .welcome-form-card-clean > p { font-size: 14px; }
+  .welcome-form-card-clean .form-field label { font-size: 13px; }
+}
+
+
+/* Cleaner main workspace: less helper copy, clearer type hierarchy */
+.dashboard-heading .greeting-eyebrow { display: none; }
+.dashboard-heading > div:first-child > p,
+.revision-hero .hero-footnote,
+.focus-card > p,
+.focus-count,
+.focus-card-bottom,
+.metric-card > p,
+.subjects-section .section-heading p,
+.dashboard-bottom-grid,
+.dashboard-note,
+.sidebar-tagline,
+.sidebar-section-label,
+.sidebar-bottom,
+.workspace-footer { display: none !important; }
+.dashboard-heading h1 { font-size: clamp(30px, 3vw, 38px); }
+.revision-hero .hero-eyebrow { font-size: 12px; }
+.revision-hero .hero-copy h2 { font-size: clamp(32px, 3.2vw, 42px); line-height: 1.1; }
+.revision-hero .hero-copy > p { font-size: 16px; line-height: 1.6; }
+.revision-hero .button { font-size: 15px; min-height: 48px; }
+.focus-card .card-section-heading h3 { font-size: 18px; }
+.coverage-ring strong { font-size: 38px; }
+.coverage-ring > div > span { font-size: 12px; }
+.metric-card .metric-top > span:first-child { font-size: 14px; }
+.metric-card > strong { font-size: 30px; }
+.subjects-section .section-heading h2 { font-size: 23px; }
+.nav-item { font-size: 15px; min-height: 48px; }
+.topbar-breadcrumb > span { font-size: 15px; }
+@media (max-width: 760px) {
+ .revision-hero .hero-copy > p { font-size: 14px; }
+ .metric-card .metric-top > span:first-child { font-size: 12px; }
+ .metric-card > strong { font-size: 25px; }
+}
+
+
+/* Improve subject-card readability */
+.subject-card > p { font-size: 16px; line-height: 1.7; }
+.subject-card-meta { font-size: 14px; }
+.subject-card-meta svg { width: 17px; height: 17px; }
+.subject-card-bottom { font-size: 14px; }
+.subject-card h3 { font-size: 19px; line-height: 1.4; }
+.subject-card .course-code { font-size: 13px; }
+@media (max-width: 760px) {
+  .subject-card > p { font-size: 14px; }
+  .subject-card-meta, .subject-card-bottom { font-size: 13px; }
+  .subject-card h3 { font-size: 17px; }
+}
+
+
+/* Mobile-first onboarding layout */
+@media (max-width: 760px) {
+  .onboarding-clean { min-height: 100dvh; padding: 0 18px; overflow-x: hidden; }
+  .onboarding-clean .onboarding-header { height: 66px; padding: 0; gap: 12px; }
+  .onboarding-clean .brand { font-size: 24px; }
+  .onboarding-clean .brand-mark { width: 42px; height: 42px; }
+  .onboarding-clean .onboarding-badge { font-size: 11px; }
+  .onboarding-body-clean { display: flex; flex-direction: column; align-items: stretch; gap: 22px; width: 100%; padding: 28px 0 24px; }
+  .welcome-story-clean { text-align: left; padding: 0 2px; }
+  .welcome-story-clean > .eyebrow { font-size: 10px; }
+  .welcome-story-clean h1 { font-size: clamp(38px, 11vw, 48px); line-height: 1.08; margin: 12px 0; }
+  .welcome-story-clean .welcome-description { font-size: 15px; line-height: 1.65; }
+  .welcome-form-card-clean { width: 100%; max-width: none; min-width: 0; padding: 24px 20px 22px; border-radius: 16px; }
+  .welcome-form-card-clean h2 { font-size: 26px; }
+  .welcome-form-card-clean > p { font-size: 14px; }
+  .welcome-form-card-clean .profile-form { gap: 16px; margin-top: 20px; }
+  .welcome-form-card-clean .form-field { min-width: 0; }
+  .welcome-form-card-clean input { width: 100%; min-width: 0; box-sizing: border-box; }
+  .welcome-form-card-clean .form-submit { width: 100%; min-height: 50px; }
+  .onboarding-footer-clean { padding: 14px 0 20px; font-size: 11px; }
+}
+@media (max-width: 380px) {
+  .onboarding-clean { padding: 0 14px; }
+  .welcome-form-card-clean { padding: 21px 16px; }
+  .welcome-story-clean h1 { font-size: 36px; }
+}
+
+
+/* Sidebar navigation spacing and persistent logout action */
+.sidebar { display: flex; flex-direction: column; }
+.sidebar nav { display: flex; flex-direction: column; gap: 12px; padding-top: 24px; }
+.sidebar .sidebar-bottom { margin-top: auto; padding: 20px 16px 24px; }
+.sidebar-logout { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 50px; padding: 0 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; background: transparent; color: var(--sidebar-text, #c6c5d8); font: inherit; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer; transition: background .18s ease, color .18s ease; }
+.sidebar-logout:hover { background: rgba(255,255,255,.09); color: #fff; }
+.sidebar-logout:focus-visible { outline: 2px solid #a99aff; outline-offset: 3px; }
+.sidebar .sidebar-brand { margin-bottom: 10px; }
+@media (max-width: 760px) {
+  .sidebar nav { gap: 8px; padding-top: 18px; }
+  .sidebar .sidebar-bottom { padding: 16px 12px 20px; }
+  .sidebar-logout { min-height: 46px; }
+}
+
+
+/* Explicitly show the logout area; an older cleanup rule hid .sidebar-bottom. */
+.sidebar .sidebar-bottom { display: block !important; flex: 0 0 auto; margin-top: auto; }
+.sidebar { min-height: 100vh; min-height: 100dvh; }
+.sidebar-logout { display: flex !important; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; color: #d5d2e8; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.16); }
+.sidebar-logout span { display: inline !important; visibility: visible !important; opacity: 1 !important; }
+.sidebar-logout svg { display: block; flex: 0 0 auto; }
+@media (max-width: 760px) {
+  .sidebar .sidebar-bottom { display: block !important; }
+}
+
+
+/* Readability pass across the student app and admin console */
+:root { --ui-text-size: 15px; }
+body { font-size: 15px; }
+.page-heading p, .subject-card > p, .empty-state p, .modal > p,
+.notice p, .field-help, .field-error, .page-footnote,
+.history-row, .config-detail, .config-footnote { font-size: 14px; }
+.eyebrow, .course-code, .heading-date > span:last-child { font-size: 12px; letter-spacing: .6px; }
+.nav-item { font-size: 16px; min-height: 50px; }
+.topbar-breadcrumb { font-size: 14px; }
+.page-heading h1, .dashboard-heading h1 { font-size: clamp(30px, 3vw, 38px); }
+.subject-card h3 { font-size: 20px; }
+.subject-card-meta, .subject-card-bottom { font-size: 15px; }
+.metric-card .metric-top > span:first-child { font-size: 15px; }
+.button, .text-button { font-size: 15px; }
+.unit-card h3 { font-size: 17px; }
+.unit-card p, .unit-question-count { font-size: 13px; }
+.step-heading h2 { font-size: 21px; }
+.step-heading p { font-size: 15px; }
+.quiz-config .config-detail, .quiz-config .config-detail strong { font-size: 14px; }
+
+/* Admin panel: comfortable reading size, including table content */
+.app-shell { font-size: 15px; }
+.app-shell h1 { font-size: clamp(28px, 3vw, 36px) !important; line-height: 1.25; }
+.app-shell p { font-size: 15px; line-height: 1.65; }
+.app-shell th { font-size: 14px; }
+.app-shell td { font-size: 15px; }
+.app-shell input, .app-shell select { font-size: 15px; min-height: 44px; }
+.app-shell .button { font-size: 15px; min-height: 44px; }
+.app-shell .privacy-note { font-size: 13px; line-height: 1.6; }
+.welcome-form-card .privacy-note { font-size: 13px; }
+@media (max-width: 760px) {
+  body { font-size: 15px; }
+  .page-heading p, .subject-card > p, .notice p, .empty-state p, .field-help,
+  .field-error, .page-footnote, .config-detail { font-size: 14px; }
+  .subject-card h3 { font-size: 18px; }
+  .unit-card h3 { font-size: 15px; }
+  .unit-card p, .unit-question-count { font-size: 12px; }
+  .step-heading h2 { font-size: 19px; }
+  .step-heading p { font-size: 14px; }
+  .app-shell td { font-size: 14px; }
+}
