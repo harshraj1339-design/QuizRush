@@ -97,4 +97,4 @@ $$;
 revoke all on function public.get_registration_student_data(text) from public;
 revoke all on function public.save_registration_student_data(text, text, jsonb, jsonb, jsonb, jsonb, boolean) from public;
 grant execute on function public.get_registration_student_data(text) to anon, authenticated;
-grant execute on function public.save_registration_student_data(text, text, jsonb, jsonb, jsonb, jsonb) to anon, authenticated;
+grant execute on function public.save_registration_student_data(text, text, jsonb, jsonb, jsonb, jsonb, boolean) to anon, authenticated;
