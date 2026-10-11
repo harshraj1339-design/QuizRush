@@ -58,6 +58,7 @@ export default function QuizView({ session, onChange, onFinish, onExit }: { sess
       : [...bookmarked, question.id]
     setBookmarked(next)
     writeStorage(`bookmarkedQuestions:${session.registration}`, next)
+    window.dispatchEvent(new CustomEvent('quizrush-bookmarks-changed'))
   }
   function answer(id: string) {
     if (session.answers[question.id] || remaining === 0 || Date.now() >= session.startedAt + session.durationMinutes * 60000) return
