@@ -46,7 +46,8 @@ create or replace function public.save_registration_student_data(
   p_attempts jsonb default null,
   p_active_session jsonb default null,
   p_question_usage jsonb default null,
-  p_bookmarked_questions jsonb default null
+  p_bookmarked_questions jsonb default null,
+  p_clear_active boolean default false
 )
 returns jsonb
 language plpgsql
@@ -75,7 +76,7 @@ begin
   on conflict (registration_id) do update set
     student_name = excluded.student_name,
     attempts = coalesce(p_attempts, registration_student_data.attempts),
-    active_session = case when p_active_session is null then registration_student_data.active_session else p_active_session end,
+    active_session = case when p_clear_active then null when p_active_session is not null then p_active_session else registration_student_data.active_session end,
     question_usage = coalesce(p_question_usage, registration_student_data.question_usage),
     bookmarked_questions = coalesce(p_bookmarked_questions, registration_student_data.bookmarked_questions),
     updated_at = now();
@@ -94,6 +95,6 @@ end;
 $$;
 
 revoke all on function public.get_registration_student_data(text) from public;
-revoke all on function public.save_registration_student_data(text, text, jsonb, jsonb, jsonb, jsonb) from public;
+revoke all on function public.save_registration_student_data(text, text, jsonb, jsonb, jsonb, jsonb, boolean) from public;
 grant execute on function public.get_registration_student_data(text) to anon, authenticated;
 grant execute on function public.save_registration_student_data(text, text, jsonb, jsonb, jsonb, jsonb) to anon, authenticated;
