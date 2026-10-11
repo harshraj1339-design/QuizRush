@@ -1,34 +1,40 @@
 # QuizRush question-bank quality review
 
-Status: **NOT APPROVED FOR PUBLIC RELEASE**. This review is based on a structural scan of the current feature branch and available course materials. It is not a subject-matter expert sign-off.
+Status: **NOT APPROVED FOR PUBLIC RELEASE**. This is a structural/content-pattern audit, not subject-matter-expert sign-off.
 
-## Findings from the scan
+## Current structural findings
 
-| Subject | Current entries detected | Unit counts | Review status |
+| Subject | Entries | Unit counts | Current finding |
 |---|---:|---|---|
-| CSE205 — Data Structures and Algorithms | 25 | I: 5, II: 4, III: 4, IV: 5, V: 3, VI: 4 | **Incomplete** versus the planned 450 entries. |
-| CSE202 — Object Oriented Programming | 450 | 100, 100, 100, 50, 50, 50 | Structure looks consistent; still requires answer/explanation verification against the syllabus. |
-| CSE306 — Computer Networks | 600 | 100 per unit | **Critical schema/content defect.** Rows store the actual question in the answer-key field, shift the choices, and omit explanations. Do not serve this bank until reconstructed and every key is checked. |
-| CSE423 — Virtualization and Cloud Computing | 600 | 100 per unit | Removed the repeated obviously unrelated distractor; alternatives now draw from neighboring concepts. Still has repeated template stems and needs syllabus/sample-paper review. |
-| MTH401 — Discrete Mathematics | 600 | 100 per unit | Removed the repeated obviously unrelated distractor; alternatives now draw from neighboring concepts. Still has repeated template stems and needs mathematical answer-key verification. |
-| INT335 — Design Thinking | 600 | 100 per unit | Many concepts repeat the same answer and distractors across templated stems. Requires a substantial rewrite against the official INT335 syllabus before approval. |
+| CSE205 — Data Structures and Algorithms | 450 | I–III: 100 each; IV–VI: 50 each | Target count restored. Six duplicate stems detected; answers, explanations, and syllabus alignment still need verification. |
+| CSE202 — Object Oriented Programming | 450 | I–III: 100 each; IV–VI: 50 each | No exact duplicate stems detected in the latest structural scan. Answer keys, explanations, and syllabus alignment still need verification. |
+| CSE306 — Computer Networks | 600 | 100 per unit | Tuple structure and answer-key placement repaired. Only 60 unique stems remain across 600 rows (540 repeated stems), and generic filler distractors remain. **Not publishable.** |
+| CSE423 — Virtualization and Cloud Computing | 600 | 100 per unit | Repeated template stems remain. A generic filler distractor was replaced with a same-unit subject-related alternative, but all options/keys still need substantive review. |
+| MTH401 — Discrete Mathematics | 600 | 100 per unit | Repeated template stems remain. A generic filler distractor was replaced with a same-unit subject-related alternative; mathematical keys and explanations still need verification. |
+| INT335 — Design Thinking | 600 | 100 per unit | Template repetition remains; the unit grouping is provisional because the official INT335 syllabus has not yet been confirmed. |
 
-## Corrections made in this pass
+## CI status
 
-- Replaced the identical filler distractor in all 600 CSE423 entries with a subject-related alternative drawn from another concept in the same unit.
-- Replaced the identical filler distractor in all 600 MTH401 entries the same way.
-- Kept all changes on `feature/supabase-backend`; nothing was merged into `main`.
+A GitHub Actions run failed at dependency installation, before application compilation: `npm ci` reported that `package.json` and `package-lock.json` were out of sync, specifically missing Supabase packages in the lockfile. The workflow was changed to `npm install --no-audit --no-fund` to allow CI to resolve dependencies. That change's own run reported success; this confirms the workflow completed successfully, but does not prove question correctness or replace a clean, committed lockfile.
 
-## Blocking work before publication
+## Corrections recorded
 
-1. Rebuild CSE306 seed tuples so each record has a real stem, four options, a verified correct answer, and an explanation. Then check all 600 answer keys.
-2. Restore/author the planned CSE205 bank; only 25 records are present in the current file, not 450.
-3. Rewrite template-heavy CSE423, MTH401, and INT335 items into genuinely distinct questions, with plausible same-category distractors and accurate explanations.
-4. Verify all subject unit assignments against the official syllabus and use sample papers only as a style guide, not as a source to copy.
-5. Run TypeScript/build checks and a bank audit; then have a human subject reviewer spot-check factual accuracy and ambiguity.
+- CSE205 restored to 450 entries with the intended unit counts.
+- CSE306 tuple layout and answer-key placement repaired, but its 540 duplicate stems and filler distractors remain release blockers.
+- CSE423 and MTH401 repeated unrelated filler distractors replaced with subject-related alternatives.
+- CI dependency-install step adjusted to get past the lockfile mismatch.
+- All changes remain on `feature/supabase-backend`; no changes were merged into `main`.
+
+## Release blockers
+
+1. Rewrite CSE306 repeated templates into genuinely distinct questions, replace filler distractors, and verify answer keys and explanations.
+2. Review CSE205 and CSE202 answer keys/explanations against the official syllabi and remove duplicate/ambiguous items.
+3. Rewrite template-heavy CSE423, MTH401, and INT335 items with plausible distractors and accurate explanations.
+4. Confirm every unit assignment against official course syllabi; INT335 unit mapping remains provisional.
+5. Run a structural audit, clean install/build, and human subject-matter spot check before release.
 
 ## Quality standard
 
-A unique stem count alone does not demonstrate quality. Each question needs one defensible answer, plausible non-overlapping distractors, an explanation that supports the key, and alignment to the intended unit. These criteria follow standard MCQ construction guidance, including the NC State teaching resource and the peer-reviewed MCQ development blueprint:
+A target entry count or unique stem count alone does not demonstrate quality. Each question needs one defensible answer, plausible non-overlapping distractors, an explanation that supports the key, and alignment to the intended unit. See:
 - https://teaching-resources.delta.ncsu.edu/multiplechoice/
 - https://pmc.ncbi.nlm.nih.gov/articles/PMC9873868/
