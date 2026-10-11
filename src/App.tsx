@@ -18,7 +18,7 @@ import Profile from './components/Profile'
 import AdminPanel from './components/AdminPanel'
 import { EmptyState, Modal, SubjectCard, SubjectIcon } from './components/Common'
 
-const readRoute = () => window.location.hash.slice(1) || '/dashboard'
+const readRoute = () => window.location.hash.slice(1) || '/'
 
 export default function App() {
   const [student, setStudent] = useState<Student | null>(getStudent)
@@ -159,7 +159,7 @@ export default function App() {
     } else if (previousStudent?.registration !== value.registration) {
       setActive(null)
     }
-    if (!previousStudent) navigate('/dashboard')
+    if (!previousStudent || route === '/' || route === '/register') navigate('/dashboard')
   }
   function startQuiz(session: QuizSession) { writeStorage('active', session); setActive(session); setQuickOpen(false); window.scrollTo({ top: 0 }) }
   const finishQuiz = useCallback((session: QuizSession) => {
@@ -182,7 +182,7 @@ export default function App() {
   const result = visibleAttempts.find(attempt => attempt.id === parts[1])
   const notification = message && <div className="toast" role="status"><Info size={19} /><p>{message}</p><button aria-label="Dismiss notice" className="icon-button" onClick={() => setMessage('')}><X size={17} /></button></div>
   if (route.split('/').filter(Boolean)[0] === 'admin') return <><AdminPanel />{notification}</>
-  if (!student) return <><Onboarding onSave={saveProfile} />{notification}</>
+  if (!student || route === '/' || route === '/register') return <><Onboarding onSave={saveProfile} />{notification}</>
   if (active) return <><QuizView session={active} onChange={setActive} onFinish={finishQuiz} onExit={exitQuiz} />{notification}</>
 
   let content
