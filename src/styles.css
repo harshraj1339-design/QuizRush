@@ -1106,3 +1106,27 @@ body { font-size: 15px; }
   .step-heading p { font-size: 14px; }
   .app-shell td { font-size: 14px; }
 }
+
+
+/* Question library browsing page */
+.question-browser-filters { display: grid; grid-template-columns: minmax(170px, 1fr) minmax(130px, .65fr) minmax(240px, 1.5fr); gap: 16px; margin: 18px 0 22px; padding: 20px; }
+.question-browser-filters label { display: flex; flex-direction: column; gap: 8px; min-width: 0; color: var(--body-muted); font-size: 13px; font-weight: 650; }
+.question-browser-filters select, .question-browser-filters input { width: 100%; min-width: 0; min-height: 44px; box-sizing: border-box; }
+.question-browser-search .input-with-icon { width: 100%; }
+.question-browser-list { display: grid; gap: 16px; }
+.browser-question { padding: 22px; }
+.browser-question-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.browser-question-meta span { border-radius: 999px; padding: 5px 9px; background: var(--surface-soft, var(--ring-track)); color: var(--body-muted); font-size: 11px; font-weight: 650; }
+.browser-question h2 { font-size: 17px; line-height: 1.55; margin: 0 0 16px; }
+.browser-options { display: grid; gap: 9px; padding-left: 28px; margin: 0; }
+.browser-options li { padding: 10px 12px; border: 1px solid var(--border, #e7e7ef); border-radius: 10px; line-height: 1.5; }
+.browser-options li::marker { color: var(--body-muted); font-weight: 700; }
+.browser-options li.browser-correct { border-color: #25a878; background: color-mix(in srgb, #25a878 8%, transparent); }
+.browser-options li strong { display: inline-block; margin-left: 10px; color: #16865e; font-size: 11px; white-space: nowrap; }
+.browser-explanation { margin-top: 15px; padding: 13px 15px; border-radius: 10px; background: var(--surface-soft, var(--ring-track)); }
+.browser-explanation strong { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.browser-explanation p { margin: 5px 0 0; color: var(--body-muted); font-size: 14px; line-height: 1.6; }
+.question-browser-pagination { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 22px 0 8px; color: var(--body-muted); font-size: 13px; }
+.question-browser-pagination > div { display: flex; gap: 8px; }
+.question-browser-pagination .button { min-height: 40px; }
+@media (max-width: 760px) { .question-browser-filters { grid-template-columns: 1fr; padding: 15px; } .browser-question { padding: 16px; } .browser-question h2 { font-size: 15px; } .question-browser-pagination { align-items: flex-start; flex-direction: column; } .browser-options li strong { display: block; margin: 4px 0 0; } }
