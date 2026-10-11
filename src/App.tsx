@@ -5,6 +5,8 @@ import { subjects } from './data/subjects'
 import { calculateResult } from './services/quiz'
 import { getActiveSession, getCachedAttempts, getStudent, mergeAttempts, readStorage, writeStorage } from './services/storage'
 import { markQuestionsUsed } from './services/questionUsage'
+import { fetchCloudAttempts, fetchCloudProgress, fetchCloudStudent, saveCloudAttempt, saveCloudProgress } from './services/cloudProgress'
+import { isSupabaseConfigured, supabase } from './lib/supabase'
 import Onboarding from './components/Onboarding'
 import Shell from './components/Shell'
 import Dashboard from './components/Dashboard'
@@ -19,14 +21,13 @@ import { EmptyState, Modal, SubjectCard, SubjectIcon } from './components/Common
 const readRoute = () => window.location.hash.slice(1) || '/dashboard'
 
 export default function App() {
-  const [student, setStudent] = useState<Student | null>(getStudent)
+  const [student, setStudent] = useState<Student | null>(null)
   const [route, setRoute] = useState(readRoute)
-  const [attempts, setAttempts] = useState<Attempt[]>(getCachedAttempts)
-  const [active, setActive] = useState<QuizSession | null>(() => { const saved = getStudent(); return saved ? getActiveSession(saved.registration) : null })
+  const [attempts, setAttempts] = useState<Attempt[]>([])
+  const [active, setActive] = useState<QuizSession | null>(null)
   const [dark, setDark] = useState(() => readStorage<boolean>('dark', false) === true)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
-  const [syncing, setSyncing] = useState(false)
   const [quickOpen, setQuickOpen] = useState(false)
   const [subjectSearch, setSubjectSearch] = useState('')
   const [setupSeed, setSetupSeed] = useState<{ code: CourseCode; units: number[] } | null>(null)
@@ -47,12 +48,46 @@ export default function App() {
     document.getElementById('main-content')?.focus({ preventScroll: true })
   }, [route])
   useEffect(() => {
-    if (!student) return
     let cancelled = false
-    setLoading(true)
-    setLoading(false)
+    async function restoreAccount() {
+      if (!isSupabaseConfigured) { setLoading(false); return }
+      setLoading(true)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session?.user || cancelled) return
+        const profile = await fetchCloudStudent(session.user.id)
+        if (!profile || cancelled) return
+        const [cloudAttempts, cloudProgress] = await Promise.all([
+          fetchCloudAttempts(session.user.id),
+          fetchCloudProgress(session.user.id),
+        ])
+        if (cancelled) return
+        setStudent(profile)
+        setAttempts(cloudAttempts)
+        writeStorage('student', profile)
+        writeStorage('attempts', cloudAttempts)
+        writeStorage('question-usage', cloudProgress.question_usage)
+        writeStorage('bookmarkedQuestions', cloudProgress.bookmarked_questions)
+        const savedSession = cloudProgress.active_session
+        if (savedSession && savedSession.registration === profile.registration && Date.now() < savedSession.startedAt + savedSession.durationMinutes * 60000) {
+          setActive(savedSession)
+          writeStorage('active', savedSession)
+        } else {
+          setActive(null)
+          writeStorage('active', null)
+        }
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : 'Could not restore your saved progress.')
+      } finally { if (!cancelled) setLoading(false) }
+    }
+    void restoreAccount()
     return () => { cancelled = true }
-  }, [student?.registration])
+  }, [])
+  useEffect(() => {
+    if (student?.userId && active) {
+      void saveCloudProgress(student.userId, { active_session: active }).catch(() => setMessage('Your latest quiz progress could not sync. Check your connection.'))
+    }
+  }, [student?.userId, active])
 
   const navigate = useCallback((path: string) => {
     if (window.location.hash === `#${path}`) { setRoute(path); window.scrollTo({ top: 0 }) }
@@ -73,15 +108,14 @@ export default function App() {
     const result = calculateResult(session)
     setAttempts(current => mergeAttempts(current, [result]))
     writeStorage('attempts', mergeAttempts(getCachedAttempts(), [result]))
+    if (student?.userId) void saveCloudAttempt(student.userId, result).catch(() => setMessage('Your result could not sync to your account. Please check your connection.'))
+    if (student?.userId) void saveCloudProgress(student.userId, { active_session: null }).catch(() => setMessage('Your completed quiz was saved locally but cloud progress could not update.'))
     writeStorage('active', null)
     setActive(null)
     navigate(`/results/${result.id}`)
     if (Date.now() >= session.startedAt + session.durationMinutes * 60000) setMessage('Time’s up. Your quiz has been submitted automatically with your saved answers.')
-  }, [navigate])
+  }, [navigate, student?.userId])
   function exitQuiz() { writeStorage('active', null); setActive(null); navigate('/subjects') }
-  async function retryStorage() {
-    setMessage('Quiz history is saved in this browser for now. Cross-device history will be added after secure student authentication is implemented.')
-  }
 
   const visibleAttempts = attempts.filter(attempt => attempt.registration === student?.registration)
   const parts = route.split('/').filter(Boolean)
@@ -90,7 +124,7 @@ export default function App() {
   const notification = message && <div className="toast" role="status"><Info size={19} /><p>{message}</p><button aria-label="Dismiss notice" className="icon-button" onClick={() => setMessage('')}><X size={17} /></button></div>
   if (route.split('/').filter(Boolean)[0] === 'admin') return <><AdminPanel />{notification}</>
   if (!student) return <><Onboarding onSave={saveProfile} />{notification}</>
-  if (active) return <><QuizView session={active} onChange={setActive} onFinish={finishQuiz} onExit={exitQuiz} />{notification}</>
+  if (active) return <><QuizView session={active} onChange={setActive} onFinish={finishQuiz} onExit={exitQuiz} userId={student.userId} />{notification}</>
 
   let content
   if (parts[0] === 'subjects') {
