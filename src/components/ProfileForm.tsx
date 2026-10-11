@@ -1,12 +1,11 @@
 import { useState, type FormEvent } from 'react'
-import { ArrowRight, Check, GraduationCap, UserRound } from 'lucide-react'
+import { ArrowRight, Check, UserRound } from 'lucide-react'
 import type { Student } from '../types'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
 export default function ProfileForm({ initial, onSave }: { initial?: Student; onSave: (student: Student) => void }) {
   const [name, setName] = useState(initial?.name || '')
   const [registration, setRegistration] = useState(initial?.registration || '')
-  const [semester, setSemester] = useState(initial ? '3' : '')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saved, setSaved] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -19,7 +18,6 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
     if (!cleanName) nextErrors.name = 'Please enter your full name.'
     else if (cleanName.length > 80) nextErrors.name = 'Please use 80 characters or fewer.'
     if (!/^\d{8}$/.test(cleanRegistration)) nextErrors.registration = 'Incorrect reg ID.'
-    if (semester !== '3') nextErrors.semester = 'Please select a semester.'
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length) return
     setSubmitting(true)
@@ -55,11 +53,6 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
       <label htmlFor="registration">LPU registration number <span>*</span></label>
       <input id="registration" className={errors.registration ? 'input-error' : ''} value={registration} onChange={event => { setRegistration(event.target.value.replace(/\D/g, '').slice(0, 8)); setSaved(false) }} placeholder="Reg ID: 12345678" inputMode="numeric" pattern="[0-9]{8}" autoComplete="off" minLength={8} maxLength={8} required aria-invalid={!!errors.registration} aria-describedby={errors.registration ? 'registration-error' : 'registration-help'} />
       {errors.registration && <p id="registration-error" className="field-error">{errors.registration}</p>}
-    </div>
-    <div className="form-field">
-      <label htmlFor="semester">Semester <span>*</span></label>
-      <div className={`input-with-icon ${errors.semester ? 'input-error' : ''}`}><GraduationCap size={19} /><select id="semester" value={semester} onChange={event => setSemester(event.target.value)} required aria-invalid={!!errors.semester} aria-describedby={errors.semester ? 'semester-error' : undefined}><option value="" disabled>Select semester</option><option value="3">Semester 3</option></select></div>
-      {errors.semester && <p id="semester-error" className="field-error">{errors.semester}</p>}
     </div>
     {errors.form && <p className="field-error" role="alert">{errors.form}</p>}
     <button className="button primary form-submit" type="submit" disabled={submitting}>{submitting ? 'Saving profile…' : initial ? 'Save Changes' : 'Start Quiz'}{!submitting && (saved && initial ? <Check size={18} /> : <ArrowRight size={18} />)}</button>
