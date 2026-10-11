@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Clock3, Flag, Info, Lightbulb, LogOut, X, XCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Bookmark, Check, CheckCircle2, Clock3, Info, Lightbulb, LogOut, X, XCircle } from 'lucide-react'
 import type { Question, QuizSession } from '../types'
 import { getSubject, romanUnits } from '../data/subjects'
 import { formatTime } from '../services/quiz'
+import { readStorage, writeStorage } from '../services/storage'
 import { Logo } from './Brand'
 import { Modal } from './Common'
 
@@ -26,6 +27,7 @@ export function Explanation({ question, selected, review = false }: { question: 
 export default function QuizView({ session, onChange, onFinish, onExit }: { session: QuizSession; onChange: (session: QuizSession) => void; onFinish: (session: QuizSession) => void; onExit: () => void }) {
   const [remaining, setRemaining] = useState(() => Math.max(0, Math.ceil((session.startedAt + session.durationMinutes * 60000 - Date.now()) / 1000)))
   const [dialog, setDialog] = useState<'submit' | 'exit' | null>(null)
+  const [bookmarked, setBookmarked] = useState<string[]>(() => readStorage<string[]>('bookmarkedQuestions', []))
   const latestSession = useRef(session)
   latestSession.current = session
   const finished = useRef(false)
@@ -50,6 +52,13 @@ export default function QuizView({ session, onChange, onFinish, onExit }: { sess
   const question = session.questions[session.currentIndex]
   const selected = session.answers[question.id]
   const answered = session.questions.filter(item => session.answers[item.id]).length
+  function toggleBookmark() {
+    const next = bookmarked.includes(question.id)
+      ? bookmarked.filter(id => id !== question.id)
+      : [...bookmarked, question.id]
+    setBookmarked(next)
+    writeStorage('bookmarkedQuestions', next)
+  }
   function answer(id: string) {
     if (session.answers[question.id] || remaining === 0 || Date.now() >= session.startedAt + session.durationMinutes * 60000) return
     onChange({ ...session, answers: { ...session.answers, [question.id]: id } })
@@ -60,15 +69,15 @@ export default function QuizView({ session, onChange, onFinish, onExit }: { sess
     onFinish(latestSession.current)
   }
   return <div className="quiz-page"><header className="quiz-header"><Logo /><span className="quiz-header-caption">A little focus goes a long way.</span><button className="button ghost" onClick={() => setDialog('exit')}><LogOut size={16} />Exit Quiz</button></header>
-    <main className="quiz-main"><section className="quiz-title-row"><div><span className="course-code">{subject.code} · PRACTICE QUIZ</span><h1>{subject.name}</h1><p>Units {session.units.map(unit => romanUnits[unit - 1]).join(', ')} <span>·</span> Original demo questions</p></div><div className={`quiz-timer ${remaining <= 60 ? 'timer-warning' : ''}`} role="timer" aria-label={`${formatTime(remaining)} remaining`}><Clock3 size={21} /><div><span>TIME REMAINING</span><strong>{formatTime(remaining)}</strong></div></div></section>
+    <main className="quiz-main"><section className="quiz-title-row"><div><span className="course-code">{subject.code} · PRACTICE QUIZ</span><h1>{subject.name}</h1><p>Units {session.units.map(unit => romanUnits[unit - 1]).join(', ')}</p></div><div className={`quiz-timer ${remaining <= 60 ? 'timer-warning' : ''}`} role="timer" aria-label={`${formatTime(remaining)} remaining`}><Clock3 size={21} /><div><span>TIME REMAINING</span><strong>{formatTime(remaining)}</strong></div></div></section>
       <div className="quiz-layout"><section className="quiz-question-area"><div className="quiz-progress-info"><span>Question <strong>{session.currentIndex + 1}</strong> of 25</span><span>{answered} answered</span></div><div className="quiz-progress" role="progressbar" aria-label="Questions answered" aria-valuemin={0} aria-valuemax={25} aria-valuenow={answered}><span style={{ width: `${answered / 25 * 100}%` }} /></div>
-        <article className="panel question-panel" key={question.id}><div className="question-tags"><span>Unit {romanUnits[question.unitNumber - 1]}</span><span>{question.topic}</span><span className="difficulty-tag">{question.difficulty}</span></div><h2>{question.text}</h2><p className="question-hint">Choose one answer. Feedback appears immediately.</p><AnswerOptions question={question} selected={selected} onAnswer={answer} />{selected && <Explanation question={question} selected={selected} />}</article>
+        <article className="panel question-panel" key={question.id}><div className="question-tags"><span>Unit {romanUnits[question.unitNumber - 1]}</span><span>{question.topic}</span><span className="difficulty-tag">{question.difficulty}</span></div><h2>{question.text}</h2><AnswerOptions question={question} selected={selected} onAnswer={answer} />{selected && <Explanation question={question} selected={selected} />}</article>
         <div className="question-navigation"><button className="button secondary" disabled={session.currentIndex === 0} onClick={() => onChange({ ...session, currentIndex: session.currentIndex - 1 })}><ArrowLeft size={17} />Previous</button><span>{selected ? <><Check size={14} />Answer checked and saved</> : <><Info size={14} />You can skip and come back</>}</span><button className="button primary" disabled={session.currentIndex === 24} onClick={() => onChange({ ...session, currentIndex: session.currentIndex + 1 })}>Next Question<ArrowRight size={17} /></button></div>
-      </section><aside className="panel question-navigator"><div className="navigator-title"><h2>Your question map</h2><Flag size={18} /></div><p>Jump to any question, anytime.</p><div className="question-number-grid">{session.questions.map((item, index) => {
+      </section><aside className="panel question-navigator"><div className="navigator-title"><h2>Your question map</h2><button type="button" className={`icon-button bookmark-toggle ${bookmarked.includes(question.id) ? 'is-bookmarked' : ''}`} onClick={toggleBookmark} aria-label={bookmarked.includes(question.id) ? 'Remove bookmark from current question' : 'Bookmark current question'} aria-pressed={bookmarked.includes(question.id)} title={bookmarked.includes(question.id) ? 'Remove bookmark' : 'Bookmark current question'}><Bookmark size={18} fill={bookmarked.includes(question.id) ? 'currentColor' : 'none'} /></button></div><p>Jump to any question, anytime.</p><div className="question-number-grid">{session.questions.map((item, index) => {
         const answerId = session.answers[item.id]
         const state = answerId ? answerId === item.correctOptionId ? 'correct' : 'incorrect' : 'unanswered'
-        return <button key={item.id} className={`question-number ${state} ${index === session.currentIndex ? 'current' : ''}`} aria-label={`Question ${index + 1}, ${state}${index === session.currentIndex ? ', current question' : ''}`} aria-current={index === session.currentIndex ? 'step' : undefined} onClick={() => onChange({ ...session, currentIndex: index })}>{index + 1}</button>
-      })}</div><div className="navigator-legend"><span><Check size={12} className="legend-correct" />Correct</span><span><X size={12} className="legend-incorrect" />Incorrect</span><span><i />Unanswered</span></div><div className="navigator-summary"><strong>{answered}<span> / 25</span></strong><span>questions answered</span></div><button className="button primary submit-quiz" onClick={() => setDialog('submit')}>Submit Quiz<ArrowRight size={17} /></button><div className="navigator-tip"><Lightbulb size={18} /><p>This is practice, not pressure. Read the explanation — that’s where the learning happens.</p></div></aside></div>
+        return <button key={item.id} className={`question-number ${state} ${index === session.currentIndex ? 'current' : ''}`} aria-label={`Question ${index + 1}, ${state}${bookmarked.includes(item.id) ? ', bookmarked' : ''}${index === session.currentIndex ? ', current question' : ''}`} aria-current={index === session.currentIndex ? 'step' : undefined} onClick={() => onChange({ ...session, currentIndex: index })}>{index + 1}</button>
+      })}</div><div className="navigator-legend"><span><Check size={12} className="legend-correct" />Correct</span><span><X size={12} className="legend-incorrect" />Incorrect</span><span><i />Unanswered</span></div><div className="navigator-summary"><strong>{answered}<span> / 25</span></strong><span>questions answered</span></div><button className="button primary submit-quiz" onClick={() => setDialog('submit')}>Submit Quiz<ArrowRight size={17} /></button></aside></div>
     </main>{dialog && <Modal title={dialog === 'submit' ? 'Ready to see how you did?' : 'Leave this practice session?'} onClose={() => setDialog(null)}>{dialog === 'submit' ? <><p>You’ve answered <strong>{answered} of 25 questions.</strong>{answered < 25 && ` The remaining ${25 - answered} will be marked unanswered, not correct.`}</p><p>Your results and explanations will be available in Quiz History.</p><div className="modal-actions"><button className="button secondary" onClick={() => setDialog(null)}>Keep Practicing</button><button className="button primary" onClick={submit}>Submit Quiz<Check size={17} /></button></div></> : <><p>Answers from this unfinished quiz will be discarded. Your previously completed quizzes are safe.</p><div className="modal-actions"><button className="button secondary" onClick={() => setDialog(null)}>Stay in Quiz</button><button className="button danger" onClick={onExit}>Exit Quiz<LogOut size={16} /></button></div></>}</Modal>}
   </div>
 }
