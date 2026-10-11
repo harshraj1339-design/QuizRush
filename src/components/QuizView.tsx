@@ -21,7 +21,7 @@ export function AnswerOptions({ question, selected, onAnswer, review = false }: 
 
 export function Explanation({ question, selected, review = false }: { question: Question; selected?: string; review?: boolean }) {
   const correct = selected === question.correctOptionId
-  return <div className={`explanation ${correct ? 'explanation-correct' : selected ? 'explanation-incorrect' : ''}`} role={review ? undefined : 'status'}><span className="explanation-icon"><Lightbulb size={20} /></span><div><strong>{!selected ? 'Unanswered — here’s the explanation' : correct ? 'Nice work. You got it right!' : 'A mistake today. A lesson for exam day.'}</strong><p>{question.explanation}</p><span>{question.topic} · Unit {romanUnits[question.unitNumber - 1]} · Demo assignment</span></div></div>
+  return <div className={`explanation ${correct ? 'explanation-correct' : selected ? 'explanation-incorrect' : ''}`} role={review ? undefined : 'status'}><span className="explanation-icon"><Lightbulb size={20} /></span><div><strong>{!selected ? 'Unanswered — here’s the explanation' : correct ? 'Nice work. You got it right!' : 'A mistake today. A lesson for exam day.'}</strong><p>{question.explanation}</p><span>{question.topic} · Unit {romanUnits[question.unitNumber - 1]}</span></div></div>
 }
 
 export default function QuizView({ session, onChange, onFinish, onExit }: { session: QuizSession; onChange: (session: QuizSession) => void; onFinish: (session: QuizSession) => void; onExit: () => void }) {
