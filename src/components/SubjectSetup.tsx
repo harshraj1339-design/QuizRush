@@ -31,7 +31,7 @@ export default function SubjectSetup({ code, registration, onStart, onBack, init
     <section className="page-heading subject-heading">
       <div className="subject-title"><SubjectIcon subject={subject} size={30} /><div><span className="course-code">{subject.code}</span><h1>{subject.name}</h1><p>{subject.description}</p></div></div>
     </section>
-    <div className="notice syllabus-notice"><Info size={19} /><div><strong>Syllabus alignment in progress</strong><p>{syllabusNotice} Unit topics are being aligned with the official course syllabus.</p></div></div>
+    <div className="notice syllabus-notice"><Info size={19} /><div><strong>Unit-wise syllabus guide</strong><p>{syllabusNotice}</p></div></div>
     <div className="setup-layout">
       <div className="setup-steps">
         <section className="panel setup-panel">
@@ -41,7 +41,7 @@ export default function SubjectSetup({ code, registration, onStart, onBack, init
             const questions = getQuestions(code, [unit.number])
             const topics = [...new Set(questions.map(question => question.topic))]
             const selected = selectedUnits.includes(unit.number)
-            return <button key={unit.number} className={`unit-card ${selected ? 'selected' : ''}`} aria-pressed={selected} onClick={() => toggleUnit(unit.number)}><div><span className="unit-roman">UNIT {romanUnits[unit.number - 1]}</span><span className="unit-checkbox">{selected && <Check size={14} />}</span></div><h3>{unit.verified ? unit.title : 'Syllabus title pending'}</h3><p>{unit.verified ? unit.topics.join(' · ') : `Topics: ${topics.join(' · ')}`}</p><span className="unit-question-count"><BookOpen size={13} />{questions.length} questions</span></button>
+            return <button key={unit.number} className={`unit-card ${selected ? 'selected' : ''}`} aria-pressed={selected} onClick={() => toggleUnit(unit.number)}><div><span className="unit-roman">UNIT {romanUnits[unit.number - 1]}</span><span className="unit-checkbox">{selected && <Check size={14} />}</span></div><h3>{unit.title}</h3><p className="unit-topics">{unit.topics.slice(0, 5).join(' · ')}</p><span className="unit-question-count"><BookOpen size={13} />{questions.length} questions</span></button>
           })}</div>
         </section>
       </div>
