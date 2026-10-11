@@ -29,8 +29,34 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: cleanName, registrationId: cleanRegistration, semester: 3 }),
         })
-        const payload = await response.json()
-        if (!response.ok) throw new Error(payload.error || 'Registration could not be saved.')
+        // Read the body as text first so an empty/non-JSON response does not
+        // surface as the confusing "Unexpected end of JSON input" error.
+        const responseText = await response.text()
+        let payload: { error?: string; student?: unknown } = {}
+        if (responseText.trim()) {
+          try {
+            payload = JSON.parse(responseText) as { error?: string; student?: unknown }
+          } catch {
+            throw new Error(
+              'The registration API returned an invalid response. For local development, stop Vite and run "npx netlify dev", then open the URL it prints (usually http://localhost:8888).'
+            )
+          }
+        } else if (!response.ok) {
+          throw new Error(
+            `The registration API is unavailable (HTTP ${response.status}). For local development, run "npx netlify dev" and open the URL it prints.`
+          )
+        } else {
+          throw new Error(
+            'The registration API returned an empty response. Run the app with "npx netlify dev" so the Netlify functions are available.'
+          )
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            payload.error ||
+              `Registration failed (HTTP ${response.status}). Check the Netlify function logs.`
+          )
+        }
       }
       setName(cleanName); setRegistration(cleanRegistration)
       onSave({ name: cleanName, registration: cleanRegistration, semester: 3 })
