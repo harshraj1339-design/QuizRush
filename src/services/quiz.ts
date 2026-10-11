@@ -43,17 +43,30 @@ export function createQuiz(courseCode: CourseCode, units: number[], durationMinu
   const eligible = getQuestions(courseCode, units)
   if (eligible.length < QUIZ_LENGTH) throw new Error(`This selection currently has ${eligible.length} questions. At least ${QUIZ_LENGTH} are needed to start a quiz.`)
 
-  // Validate the selected subject and units only. Unrelated incomplete banks
-  // must not prevent a student from starting a quiz with valid selected questions.
-  const selectedBankErrors = validateQuestionBank(eligible)
-  if (selectedBankErrors.length > 0) {
-    console.error('Selected question bank validation errors:', selectedBankErrors)
-    throw new Error('The selected units contain invalid questions. Please contact the administrator.')
+  // Exclude malformed questions from the selected units, while allowing valid
+  // questions to be used even if other rows in that bank need review.
+  const seenIds = new Set<string>()
+  const seenTexts = new Set<string>()
+  const validEligible = eligible.filter(question => {
+    const textKey = `${question.courseCode}:${typeof question.text === 'string' ? question.text.trim().toLowerCase() : ''}`
+    const duplicate = seenIds.has(question.id) || seenTexts.has(textKey)
+    const invalid = validateQuestionBank([question]).length > 0
+    seenIds.add(question.id)
+    seenTexts.add(textKey)
+    if (duplicate || invalid) {
+      console.warn('Skipping invalid question:', question.id, { duplicate, invalid })
+      return false
+    }
+    return true
+  })
+
+  if (validEligible.length < QUIZ_LENGTH) {
+    throw new Error(`Only ${validEligible.length} valid questions are available in the selected units; at least ${QUIZ_LENGTH} are needed.`)
   }
 
   const usedIds = getUsedQuestionIds(registration, courseCode, units)
-  const unused = eligible.filter(question => !usedIds.has(question.id))
-  const selectionPool = unused.length >= QUIZ_LENGTH ? unused : [...unused, ...shuffle(eligible.filter(question => usedIds.has(question.id)))]
+  const unused = validEligible.filter(question => !usedIds.has(question.id))
+  const selectionPool = unused.length >= QUIZ_LENGTH ? unused : [...unused, ...shuffle(validEligible.filter(question => usedIds.has(question.id)))]
   return {
     id: crypto.randomUUID(), courseCode, units: [...units].sort((first, second) => first - second),
     questions: shuffle(selectionPool).slice(0, QUIZ_LENGTH).map(question => ({ ...question, options: shuffle(question.options) as Question['options'] })),
