@@ -603,6 +603,6 @@ const seeds = [
   [6, 'Iteration after testing', 'What is the main purpose of iteration after testing?', 'prioritizing changes using test findings', 'ignoring problems', 'changing everything randomly', 'declaring success after one user', 'Findings guide targeted revisions and further tests.', 'medium', 'scenario-based'],
   [6, 'Iteration after testing', 'Which principle should guide a team applying iteration after testing?', 'prioritizing changes using test findings', 'ignoring problems', 'changing everything randomly', 'declaring success after one user', 'Findings guide targeted revisions and further tests.', 'hard', 'conceptual'],
   [6, 'Iteration after testing', 'Which approach is most consistent with effective iteration after testing?', 'prioritizing changes using test findings', 'ignoring problems', 'changing everything randomly', 'declaring success after one user', 'Findings guide targeted revisions and further tests.', 'easy', 'scenario-based'],
-]
+] as const
 
-export const int335 = makeQuestions('INT335', seeds)
+export const int335 = makeQuestions('INT335', seeds.map(seed => [...seed]) as Parameters<typeof makeQuestions>[1])
