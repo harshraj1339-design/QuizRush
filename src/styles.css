@@ -1037,3 +1037,18 @@ button:disabled:not(.answer-option):not(.unit-card) { opacity: .45; }
   .welcome-form-card-clean { padding: 21px 16px; }
   .welcome-story-clean h1 { font-size: 36px; }
 }
+
+
+/* Sidebar navigation spacing and persistent logout action */
+.sidebar { display: flex; flex-direction: column; }
+.sidebar nav { display: flex; flex-direction: column; gap: 12px; padding-top: 24px; }
+.sidebar .sidebar-bottom { margin-top: auto; padding: 20px 16px 24px; }
+.sidebar-logout { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 50px; padding: 0 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; background: transparent; color: var(--sidebar-text, #c6c5d8); font: inherit; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer; transition: background .18s ease, color .18s ease; }
+.sidebar-logout:hover { background: rgba(255,255,255,.09); color: #fff; }
+.sidebar-logout:focus-visible { outline: 2px solid #a99aff; outline-offset: 3px; }
+.sidebar .sidebar-brand { margin-bottom: 10px; }
+@media (max-width: 760px) {
+  .sidebar nav { gap: 8px; padding-top: 18px; }
+  .sidebar .sidebar-bottom { padding: 16px 12px 20px; }
+  .sidebar-logout { min-height: 46px; }
+}
