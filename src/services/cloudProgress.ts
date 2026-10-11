@@ -34,8 +34,13 @@ export async function fetchCloudProgress(userId: string): Promise<CloudProgress>
 }
 
 export async function saveCloudProgress(userId: string, values: Partial<CloudProgress>): Promise<void> {
+  const current = await fetchCloudProgress(userId)
   const { error } = await supabase.from('quiz_progress').upsert({
-    user_id: userId, ...values, updated_at: new Date().toISOString(),
+    user_id: userId,
+    active_session: values.active_session === undefined ? current.active_session : values.active_session,
+    question_usage: values.question_usage ?? current.question_usage,
+    bookmarked_questions: values.bookmarked_questions ?? current.bookmarked_questions,
+    updated_at: new Date().toISOString(),
   }, { onConflict: 'user_id' })
   if (error) throw error
 }
