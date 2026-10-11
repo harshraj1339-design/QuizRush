@@ -25,6 +25,7 @@ export async function saveRegistrationData(student: Student, values: Partial<Reg
     p_active_session: values.active_session === undefined ? null : values.active_session,
     p_question_usage: values.question_usage === undefined ? null : values.question_usage,
     p_bookmarked_questions: values.bookmarked_questions === undefined ? null : values.bookmarked_questions,
+    p_clear_active: values.clear_active ?? false,
   })
   if (error) throw error
   return data as RegistrationCloudData
