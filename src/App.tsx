@@ -84,6 +84,9 @@ export default function App() {
         if (cloud.active_session && cloud.active_session.registration === student.registration && Date.now() < cloud.active_session.startedAt + cloud.active_session.durationMinutes * 60000) {
           setActive(cloud.active_session)
           writeStorage('active', cloud.active_session)
+        } else {
+          setActive(null)
+          writeStorage('active', null)
         }
         writeStorage('question-usage', cloud.question_usage || {})
         writeStorage('bookmarkedQuestions:' + student.registration, cloud.bookmarked_questions || [])
