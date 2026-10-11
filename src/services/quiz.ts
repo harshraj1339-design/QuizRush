@@ -38,11 +38,19 @@ export function shuffle<Item>(items: Item[]): Item[] {
 }
 
 export function createQuiz(courseCode: CourseCode, units: number[], durationMinutes: number, registration: string): QuizSession {
-  if (bankErrors.length) throw new Error('The question bank failed validation. Please contact the administrator.')
   if (!units.length || new Set(units).size !== units.length || units.some(unit => !Number.isInteger(unit) || unit < 1 || unit > 6)) throw new Error('Choose valid, distinct units before starting your quiz.')
   if (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > 120) throw new Error('Choose a time limit between 1 and 120 minutes.')
   const eligible = getQuestions(courseCode, units)
   if (eligible.length < QUIZ_LENGTH) throw new Error(`This selection currently has ${eligible.length} questions. At least ${QUIZ_LENGTH} are needed to start a quiz.`)
+
+  // Validate the selected subject and units only. Unrelated incomplete banks
+  // must not prevent a student from starting a quiz with valid selected questions.
+  const selectedBankErrors = validateQuestionBank(eligible)
+  if (selectedBankErrors.length > 0) {
+    console.error('Selected question bank validation errors:', selectedBankErrors)
+    throw new Error('The selected units contain invalid questions. Please contact the administrator.')
+  }
+
   const usedIds = getUsedQuestionIds(registration, courseCode, units)
   const unused = eligible.filter(question => !usedIds.has(question.id))
   const selectionPool = unused.length >= QUIZ_LENGTH ? unused : [...unused, ...shuffle(eligible.filter(question => usedIds.has(question.id)))]
