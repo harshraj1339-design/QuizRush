@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, Check, Info, Search, X, Zap } from 'lucide-react'
 import type { Attempt, CourseCode, QuizSession, Student } from './types'
 import { subjects } from './data/subjects'
 import { calculateResult } from './services/quiz'
-import { getCachedAttempts, mergeAttempts, readStorage, writeStorage } from './services/storage'
+import { getActiveSession, getCachedAttempts, mergeAttempts, readStorage, writeStorage } from './services/storage'
 import { markQuestionsUsed } from './services/questionUsage'
 import { fetchCloudAttempts, fetchCloudProgress, fetchCloudStudent, saveCloudAttempt, saveCloudProgress } from './services/cloudProgress'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
@@ -23,7 +23,7 @@ const readRoute = () => window.location.hash.slice(1) || '/dashboard'
 export default function App() {
   const [student, setStudent] = useState<Student | null>(null)
   const [route, setRoute] = useState(readRoute)
-  const [attempts, setAttempts] = useState<Attempt[]>([])
+  const [attempts, setAttempts] = useState<Attempt[]>(getCachedAttempts)
   const [active, setActive] = useState<QuizSession | null>(null)
   const [dark, setDark] = useState(() => readStorage<boolean>('dark', false) === true)
   const [message, setMessage] = useState('')
@@ -94,11 +94,37 @@ export default function App() {
     else window.location.hash = path
   }, [])
 
-  function saveProfile(value: Student) {
+  async function saveProfile(value: Student) {
     writeStorage('student', value)
     const firstVisit = !student
     setStudent(value)
     if (firstVisit) navigate('/dashboard')
+    if (value.userId) {
+      try {
+        const localAttempts = getCachedAttempts().filter(attempt => attempt.registration === value.registration)
+        const cloudAttempts = await fetchCloudAttempts(value.userId)
+        for (const attempt of localAttempts) await saveCloudAttempt(value.userId, attempt)
+        const merged = mergeAttempts(cloudAttempts, localAttempts)
+        setAttempts(merged)
+        writeStorage('attempts', merged)
+        const cloudProgress = await fetchCloudProgress(value.userId)
+        const localActive = getActiveSession(value.registration)
+        const activeSession = cloudProgress.active_session ?? localActive
+        const usage = readStorage<Record<string, string[]>>('question-usage', {})
+        const bookmarks = readStorage<string[]>('bookmarkedQuestions', [])
+        await saveCloudProgress(value.userId, {
+          active_session: activeSession,
+          question_usage: cloudProgress.question_usage && Object.keys(cloudProgress.question_usage).length ? cloudProgress.question_usage : usage,
+          bookmarked_questions: cloudProgress.bookmarked_questions.length ? cloudProgress.bookmarked_questions : bookmarks,
+        })
+        if (activeSession && activeSession.registration === value.registration && Date.now() < activeSession.startedAt + activeSession.durationMinutes * 60000) {
+          setActive(activeSession)
+          writeStorage('active', activeSession)
+        }
+      } catch {
+        setMessage('Your account is ready, but some previous local progress could not sync. Please check your connection.')
+      }
+    }
   }
   function startQuiz(session: QuizSession) { writeStorage('active', session); setActive(session); setQuickOpen(false); window.scrollTo({ top: 0 }) }
   const finishQuiz = useCallback((session: QuizSession) => {
