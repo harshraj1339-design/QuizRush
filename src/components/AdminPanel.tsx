@@ -2,6 +2,13 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowLeft, LogOut, RefreshCw, Search, ShieldCheck, Users } from 'lucide-react'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
+type LoginEvent = {
+  id: string
+  name: string
+  registration_id: string
+  logged_in_at: string
+}
+
 type StudentRecord = {
   id: string
   name: string
@@ -17,6 +24,7 @@ export default function AdminPanel() {
   const [password, setPassword] = useState('')
   const [search, setSearch] = useState('')
   const [students, setStudents] = useState<StudentRecord[]>([])
+  const [loginEvents, setLoginEvents] = useState<LoginEvent[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -54,6 +62,14 @@ export default function AdminPanel() {
       const { data, error: queryError } = await request
       if (queryError) throw queryError
       setStudents((data || []) as StudentRecord[])
+
+      const { data: eventData, error: eventError } = await supabase
+        .from('student_login_events')
+        .select('id,name,registration_id,logged_in_at')
+        .order('logged_in_at', { ascending: false })
+        .limit(1000)
+      if (eventError) throw eventError
+      setLoginEvents((eventData || []) as LoginEvent[])
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Could not load the student directory.')
     } finally { setLoading(false) }
@@ -86,6 +102,7 @@ export default function AdminPanel() {
     await supabase.auth.signOut()
     setAuthenticated(false)
     setStudents([])
+    setLoginEvents([])
   }
 
   if (checking) return <main className="onboarding"><section className="panel"><p>Checking admin session…</p></section></main>
@@ -110,7 +127,23 @@ export default function AdminPanel() {
       </div>
       {error && <p className="field-error" role="alert">{error}</p>}
       {loading ? <p>Loading student records…</p> : students.length === 0 ? <p>No student registrations found.</p> : <div style={{ overflowX: 'auto' }}><table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}><thead><tr>{['Full name', 'Registration ID', 'Semester', 'Registered on'].map(label => <th key={label} style={{ padding: '12px 10px', borderBottom: '1px solid var(--border, #ddd)' }}>{label}</th>)}</tr></thead><tbody>{students.map(student => <tr key={student.id}>{[student.name, student.registration_id, String(student.semester), new Date(student.created_at).toLocaleString()].map((value, index) => <td key={index} style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{value}</td>)}</tr>)}</tbody></table></div>}
-      <p className="privacy-note">Showing up to 500 records. Registration ID alone is not proof of student identity.</p>
+      <p className="privacy-note">Showing up to 500 registered students.</p>
+    </section>
+    <section className="panel" style={{ padding: 24, marginTop: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+        <RefreshCw size={22} /><strong>{loginEvents.length} recent quiz entries</strong>
+      </div>
+      {loading ? <p>Loading entry history…</p> : loginEvents.length === 0 ? <p>No entries recorded yet.</p> : <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <thead><tr>{['Student name', 'Registration ID', 'Entry time'].map(label => <th key={label} style={{ padding: '12px 10px', borderBottom: '1px solid var(--border, #ddd)' }}>{label}</th>)}</tr></thead>
+          <tbody>{loginEvents.map(entry => <tr key={entry.id}>
+            <td style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{entry.name}</td>
+            <td style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{entry.registration_id}</td>
+            <td style={{ padding: '14px 10px', borderBottom: '1px solid var(--border, #eee)' }}>{new Date(entry.logged_in_at).toLocaleString()}</td>
+          </tr>)}</tbody>
+        </table>
+      </div>}
+      <p className="privacy-note">Shows up to 1,000 most recent entry events. Repeated entries are listed separately.</p>
     </section>
   </main>
 }
