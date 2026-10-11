@@ -1,7 +1,9 @@
 import { makeQuestions } from './helpers'
 
-// Draft question bank: 100 questions per unit, 600 total.
-// Unit sequence follows a general design-thinking learning progression; verify against the official INT335 syllabus before release.
+// RELEASE BLOCKED: 600 draft items, not approved for publication.
+// Unit assignments do NOT yet match the official INT335 2026–27 syllabus.
+// Row count and compilation are not evidence of factual answer-key validation.
+// See docs/question-bank-review-2026-10-11.md before changing the release status.
 const seeds = [
   [1, 'Human-centered design', 'Which statement best describes human-centered design?', 'people\'s needs, context, and lived experience', 'designer preferences', 'feature count', 'technology trends', 'Decisions should be grounded in the people affected by a solution.', 'easy', 'conceptual'],
   [1, 'Human-centered design', 'What is the main purpose of human-centered design?', 'people\'s needs, context, and lived experience', 'designer preferences', 'feature count', 'technology trends', 'Decisions should be grounded in the people affected by a solution.', 'medium', 'scenario-based'],
