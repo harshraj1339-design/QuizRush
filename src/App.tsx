@@ -5,6 +5,7 @@ import { subjects } from './data/subjects'
 import { calculateResult } from './services/quiz'
 import { getActiveSession, getCachedAttempts, getStudent, mergeAttempts, readStorage, writeStorage } from './services/storage'
 import { markQuestionsUsed } from './services/questionUsage'
+import { recordStudentActivity } from './services/activityTracking'
 import Onboarding from './components/Onboarding'
 import Shell from './components/Shell'
 import Dashboard from './components/Dashboard'
@@ -45,6 +46,27 @@ export default function App() {
     document.title = 'QuizRush — Revise Fast. Score High.'
     document.getElementById('main-content')?.focus({ preventScroll: true })
   }, [route])
+  useEffect(() => {
+    if (!student) return
+    const startedAt = Date.now()
+    let lastRecorded = 0
+    let stopped = false
+    const record = () => {
+      if (stopped || document.visibilityState === 'hidden') return
+      const seconds = Math.floor((Date.now() - startedAt) / 1000)
+      if (seconds - lastRecorded < 20) return
+      lastRecorded = seconds
+      void recordStudentActivity(student, startedAt, seconds).catch(() => {})
+    }
+    const interval = window.setInterval(record, 15000)
+    const onVisibility = () => { if (document.visibilityState === 'visible') record() }
+    const onPageHide = () => { record() }
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('pagehide', onPageHide)
+    record()
+    return () => { stopped = true; window.clearInterval(interval); document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('pagehide', onPageHide) }
+  }, [student?.registration, student?.name])
+
   useEffect(() => {
     const savedStudent = getStudent()
     if (!savedStudent) return
