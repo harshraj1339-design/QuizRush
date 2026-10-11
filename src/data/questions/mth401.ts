@@ -1,5 +1,8 @@
 import { makeQuestions } from './helpers'
 
+// RELEASE BLOCKED: answer keys, distractors, and full syllabus coverage have not been verified.
+// Official unit topics are documented, but the question items still require factual and mathematical review.
+// See docs/question-bank-review-2026-10-11.md for required corrections.
 // Draft question bank: 100 entries per unit, 600 total.
 // Unit topics follow the syllabus-related notes found in the project library. Repeated stem patterns and answer choices still require editorial review before release.
 const seeds = [
