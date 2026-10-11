@@ -1052,3 +1052,14 @@ button:disabled:not(.answer-option):not(.unit-card) { opacity: .45; }
   .sidebar .sidebar-bottom { padding: 16px 12px 20px; }
   .sidebar-logout { min-height: 46px; }
 }
+
+
+/* Explicitly show the logout area; an older cleanup rule hid .sidebar-bottom. */
+.sidebar .sidebar-bottom { display: block !important; flex: 0 0 auto; margin-top: auto; }
+.sidebar { min-height: 100vh; min-height: 100dvh; }
+.sidebar-logout { display: flex !important; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; color: #d5d2e8; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.16); }
+.sidebar-logout span { display: inline !important; visibility: visible !important; opacity: 1 !important; }
+.sidebar-logout svg { display: block; flex: 0 0 auto; }
+@media (max-width: 760px) {
+  .sidebar .sidebar-bottom { display: block !important; }
+}
