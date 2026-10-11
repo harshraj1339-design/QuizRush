@@ -17,4 +17,4 @@ export const subjects: Subject[] = courseDefinitions.map(([code, name, descripti
   })),
 }))
 export const getSubject = (code: CourseCode) => subjects.find(subject => subject.code === code)!
-export const syllabusNotice = 'Course documents have not yet been supplied. Unit boundaries and demo question assignments are provisional, not a verified university syllabus.'
+export const syllabusNotice = 'Unit topics are being aligned with official course documents. Please refer to your course materials for syllabus confirmation.'
