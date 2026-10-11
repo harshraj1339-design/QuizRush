@@ -58,11 +58,13 @@ export default function AdminPanel() {
     setLoading(true)
     setError('')
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError) throw userError
       if (!user) throw new Error('Your admin session expired. Please sign in again.')
       const { data: admin, error: adminError } = await supabase.from('admin_users').select('user_id').eq('user_id', user.id).maybeSingle()
       if (adminError) throw adminError
       if (!admin) throw new Error('This account is not authorized to view student records.')
+
       let request = supabase.from('students').select('id,name,registration_id,semester,created_at').order('created_at', { ascending: false }).limit(500)
       if (query.trim()) {
         const safe = query.trim().replace(/[,%()]/g, ' ')
@@ -71,20 +73,28 @@ export default function AdminPanel() {
       const { data, error: queryError } = await request
       if (queryError) throw queryError
       setStudents((data || []) as StudentRecord[])
-
-      const { data: eventData, error: eventError } = await supabase
-        .from('student_login_events')
-        .select('id,name,registration_id,logged_in_at')
-        .order('logged_in_at', { ascending: false })
-        .limit(1000)
-      if (eventError) throw eventError
-      setLoginEvents((eventData || []) as LoginEvent[])
-      const { data: activityData, error: activityError } = await supabase.from('student_activity_sessions').select('registration_id,student_name,seconds_spent,last_seen_at').order('last_seen_at', { ascending: false }).limit(5000)
-      if (activityError) throw activityError
-      setActivity((activityData || []) as ActivityRecord[])
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Could not load the student directory.')
-    } finally { setLoading(false) }
+      setError(reason instanceof Error ? reason.message : typeof reason === 'object' && reason !== null && 'message' in reason ? String((reason as { message: unknown }).message) : 'Could not load the student directory.')
+      setLoading(false)
+      return
+    }
+
+    // These panels are optional: their table/policy errors must not hide the student directory.
+    try {
+      const { data, error } = await supabase.from('student_login_events').select('id,name,registration_id,logged_in_at').order('logged_in_at', { ascending: false }).limit(1000)
+      if (error) throw error
+      setLoginEvents((data || []) as LoginEvent[])
+    } catch {
+      setLoginEvents([])
+    }
+    try {
+      const { data, error } = await supabase.from('student_activity_sessions').select('registration_id,student_name,seconds_spent,last_seen_at').order('last_seen_at', { ascending: false }).limit(5000)
+      if (error) throw error
+      setActivity((data || []) as ActivityRecord[])
+    } catch {
+      setActivity([])
+    }
+    setLoading(false)
   }
 
   useEffect(() => { void checkSession() }, [])
