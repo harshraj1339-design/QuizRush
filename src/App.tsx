@@ -6,6 +6,7 @@ import { calculateResult } from './services/quiz'
 import { getActiveSession, getCachedAttempts, getStudent, mergeAttempts, readStorage, writeStorage } from './services/storage'
 import { markQuestionsUsed } from './services/questionUsage'
 import { recordStudentActivity } from './services/activityTracking'
+import { fetchRegistrationData, saveRegistrationData } from './services/registrationCloud'
 import Onboarding from './components/Onboarding'
 import Shell from './components/Shell'
 import Dashboard from './components/Dashboard'
@@ -31,6 +32,8 @@ export default function App() {
   const [subjectSearch, setSubjectSearch] = useState('')
   const [setupSeed, setSetupSeed] = useState<{ code: CourseCode; units: number[] } | null>(null)
   const finishedIds = useRef(new Set<string>())
+  const cloudReady = useRef(false)
+  const cloudSaveTimer = useRef<number | null>(null)
 
   useEffect(() => {
     function changeRoute() { setRoute(readRoute()); window.scrollTo({ top: 0 }) }
@@ -66,6 +69,53 @@ export default function App() {
     record()
     return () => { stopped = true; window.clearInterval(interval); document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('pagehide', onPageHide) }
   }, [student?.registration, student?.name])
+
+  useEffect(() => {
+    if (!student) { cloudReady.current = false; return }
+    let cancelled = false
+    cloudReady.current = false
+    setLoading(true)
+    fetchRegistrationData(student.registration).then(cloud => {
+      if (cancelled) return
+      if (cloud) {
+        const merged = mergeAttempts(getCachedAttempts(), cloud.attempts || [])
+        setAttempts(merged)
+        writeStorage('attempts', merged)
+        if (cloud.active_session && cloud.active_session.registration === student.registration && Date.now() < cloud.active_session.startedAt + cloud.active_session.durationMinutes * 60000) {
+          setActive(cloud.active_session)
+          writeStorage('active', cloud.active_session)
+        }
+        writeStorage('question-usage', cloud.question_usage || {})
+        writeStorage('bookmarkedQuestions:' + student.registration, cloud.bookmarked_questions || [])
+      } else {
+        void saveRegistrationData(student, {
+          attempts: getCachedAttempts().filter(attempt => attempt.registration === student.registration),
+          active_session: getActiveSession(student.registration),
+          question_usage: readStorage<Record<string, string[]>>('question-usage', {}),
+          bookmarked_questions: readStorage<string[]>('bookmarkedQuestions:' + student.registration, []),
+        })
+      }
+      cloudReady.current = true
+    }).catch(() => {
+      if (!cancelled) setMessage('Cloud progress could not load. Check your Supabase setup and retry.')
+    }).finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [student?.registration])
+
+  useEffect(() => {
+    if (!student || !cloudReady.current) return
+    if (cloudSaveTimer.current !== null) window.clearTimeout(cloudSaveTimer.current)
+    cloudSaveTimer.current = window.setTimeout(() => {
+      const current = getActiveSession(student.registration)
+      void saveRegistrationData(student, {
+        attempts: attempts.filter(attempt => attempt.registration === student.registration),
+        active_session: current,
+        question_usage: readStorage<Record<string, string[]>>('question-usage', {}),
+        bookmarked_questions: readStorage<string[]>('bookmarkedQuestions:' + student.registration, []),
+      }).catch(() => setMessage('Cloud progress could not save. Your local copy is still available.'))
+    }, 500)
+    return () => { if (cloudSaveTimer.current !== null) window.clearTimeout(cloudSaveTimer.current) }
+  }, [student?.registration, attempts, active])
 
   useEffect(() => {
     const savedStudent = getStudent()
