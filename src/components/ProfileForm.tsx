@@ -33,6 +33,13 @@ export default function ProfileForm({ initial, onSave }: { initial?: Student; on
         // Let them continue to the app instead of treating every repeat visit as a new registration.
         if (error && error.code !== '23505') throw new Error('Could not save your registration. Please try again later.')
       }
+      // Record every successful entry, including repeat visits by an existing registration ID.
+      const { error: loginEventError } = await supabase.from('student_login_events').insert({
+        name: cleanName,
+        registration_id: cleanRegistration,
+      })
+      if (loginEventError) throw new Error('Could not record your entry. Please try again.')
+
       setName(cleanName); setRegistration(cleanRegistration)
       onSave({ name: cleanName, registration: cleanRegistration, semester: 3 })
       setSaved(true)
