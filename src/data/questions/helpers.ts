@@ -4,7 +4,7 @@ export type QuestionSeed = [number, string, string, string, string, string, stri
 
 export function makeQuestions(code: CourseCode, seeds: QuestionSeed[]): Question[] {
   return seeds.map(([unitNumber, topic, text, correct, second, third, fourth, explanation, difficulty = 'medium', style = 'conceptual'], index): Question => ({
-    id: `${code}-demo-${String(index + 1).padStart(3, '0')}`,
+    id: `${code}-u${unitNumber}-${String(index + 1).padStart(3, '0')}`,
     courseCode: code, unitNumber, topic, text,
     options: [
       { id: 'a', text: correct }, { id: 'b', text: second },
