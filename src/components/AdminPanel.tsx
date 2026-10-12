@@ -100,6 +100,22 @@ export default function AdminPanel() {
   useEffect(() => { void checkSession() }, [])
   useEffect(() => { if (authenticated) void loadStudents('') }, [authenticated])
 
+  // Keep student registrations, login events, and website-time totals current while the admin console stays open.
+  useEffect(() => {
+    if (!authenticated) return
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void loadStudents()
+    }, 15000)
+    const refreshOnVisible = () => {
+      if (document.visibilityState === 'visible') void loadStudents()
+    }
+    document.addEventListener('visibilitychange', refreshOnVisible)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener('visibilitychange', refreshOnVisible)
+    }
+  }, [authenticated, search])
+
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
