@@ -58,14 +58,18 @@ export default function AdminPanel() {
     setLoading(true)
     setError('')
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      const userResult = await Promise.race([
+        supabase.auth.getUser(),
+        new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error('Admin session check timed out. Please refresh once and try again.')), 12000)),
+      ])
+      const { data: { user }, error: userError } = userResult
       if (userError) throw userError
       if (!user) throw new Error('Your admin session expired. Please sign in again.')
       const { data: admin, error: adminError } = await supabase.from('admin_users').select('user_id').eq('user_id', user.id).maybeSingle()
       if (adminError) throw adminError
       if (!admin) throw new Error('This account is not authorized to view student records.')
 
-      let request = supabase.from('students').select('id,name,registration_id,semester,created_at').order('created_at', { ascending: false }).limit(500)
+      let request = supabase.from('students').select('id,name,registration_id,semester,created_at').order('created_at', { ascending: false }).limit(500).abortSignal(AbortSignal.timeout(12000))
       if (query.trim()) {
         const safe = query.trim().replace(/[,%()]/g, ' ')
         request = request.or(`name.ilike.%${safe}%,registration_id.ilike.%${safe}%`)
@@ -81,14 +85,14 @@ export default function AdminPanel() {
 
     // These panels are optional: their table/policy errors must not hide the student directory.
     try {
-      const { data, error } = await supabase.from('student_login_events').select('id,name,registration_id,logged_in_at').order('logged_in_at', { ascending: false }).limit(1000)
+      const { data, error } = await supabase.from('student_login_events').select('id,name,registration_id,logged_in_at').order('logged_in_at', { ascending: false }).limit(1000).abortSignal(AbortSignal.timeout(12000))
       if (error) throw error
       setLoginEvents((data || []) as LoginEvent[])
     } catch {
       setLoginEvents([])
     }
     try {
-      const { data, error } = await supabase.from('student_activity_sessions').select('registration_id,student_name,seconds_spent,last_seen_at').order('last_seen_at', { ascending: false }).limit(5000)
+      const { data, error } = await supabase.from('student_activity_sessions').select('registration_id,student_name,seconds_spent,last_seen_at').order('last_seen_at', { ascending: false }).limit(5000).abortSignal(AbortSignal.timeout(12000))
       if (error) throw error
       setActivity((data || []) as ActivityRecord[])
     } catch {
@@ -100,21 +104,8 @@ export default function AdminPanel() {
   useEffect(() => { void checkSession() }, [])
   useEffect(() => { if (authenticated) void loadStudents('') }, [authenticated])
 
-  // Keep student registrations, login events, and website-time totals current while the admin console stays open.
-  useEffect(() => {
-    if (!authenticated) return
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === 'visible') void loadStudents()
-    }, 15000)
-    const refreshOnVisible = () => {
-      if (document.visibilityState === 'visible') void loadStudents()
-    }
-    document.addEventListener('visibilitychange', refreshOnVisible)
-    return () => {
-      window.clearInterval(timer)
-      document.removeEventListener('visibilitychange', refreshOnVisible)
-    }
-  }, [authenticated, search])
+  // Do not poll automatically: repeated requests were resetting the loading UI
+  // and could overlap slow database requests. Use the Refresh button when needed.
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
